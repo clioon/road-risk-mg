@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "scope": "private_scientific_research",
+  "production": false,
+  "authorized_by": "project_owner",
+  "authorized_on": "2026-09-21",
+  "authorization_basis": "The project owner explicitly requested continued autonomous implementation for private scientific research, without a human review gate or vulnerability-based blockers.",
+  "human_review": {
+    "required": false,
+    "status": "waived_by_owner",
+    "performed": false
+  },
+  "dependency_audit": {
+    "enforcement": "informational",
+    "preserve_raw_findings": true,
+    "fail_on_execution_error": true,
+    "acknowledged_advisories": ["CVE-2025-69872", "GHSA-w8v5-vhqr-4h9v", "PYSEC-2026-2447"]
+  },
+  "scientific_integrity": {
+    "tests_required": true,
+    "test_coverage_percentage_required": false,
+    "full_suite_required_for_each_step": false,
+    "validation_mode": "focused_behavior_and_real_data_checks",
+    "privacy_before_persistence": true,
+    "coverage_evidence_required": true,
+    "owner_authorized_coverage_assumption_accepted": true,
+    "coverage_assumption_record": "configs/coverage-assumption.json",
+    "temporal_leakage_forbidden": true,
+    "frozen_test_protocol_required": true,
+    "synthetic_results_are_not_research_findings": true
+  },
+  "execution_priority": {
+    "original_scientific_plan_retained": true,
+    "authorized_protocol_amendment": "Coverage may use the explicitly recorded owner assumption of 2026-09-22; all other scientific constraints remain in force.",
+    "deliverable": "real_data_model_benchmarks_and_detailed_scientific_report",
+    "current_network_substitution_authorized": false,
+    "partial_diagnostics_may_not_claim_final_model_results": true
+  },
+  "external_publication_authorized": false
+}

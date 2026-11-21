@@ -1,0 +1,68 @@
+vars:
+  - configs/dataset.yaml
+stages:
+  prepare:
+    cmd: >-
+      python -m road_accidents.data.pipeline
+      --config configs/dataset.yaml
+      --prf-manifest data/manifests/prf-selected.json
+      --osm-manifest data/manifests/osm-selected.json
+      --coverage-manifest configs/coverage.yaml
+    deps:
+      - src/road_accidents
+      - pyproject.toml
+      - uv.lock
+      - configs/dataset.yaml
+      - configs/coverage.yaml
+      - data/manifests/prf-selected.json
+      - data/manifests/osm-selected.json
+      - data/raw/prf
+      - data/raw/osm
+      - ${boundary_path}
+    outs:
+      - data/processed/datasets:
+          persist: true
+      - data/manifests/prepared.json
+  experiment:
+    cmd: python -m road_accidents.pipeline experiment
+    deps:
+      - src/road_accidents
+      - pyproject.toml
+      - uv.lock
+      - configs/experiments/full.yaml
+      - configs/models
+      - data/manifests/prepared.json
+      - data/processed/datasets
+    outs:
+      - artifacts/dvc/experiment.json
+      - artifacts/runs:
+          persist: true
+      - artifacts/experiments:
+          persist: true
+      - artifacts/bundles:
+          persist: true
+      - artifacts/code:
+          persist: true
+  report:
+    cmd: python -m road_accidents.pipeline report
+    deps:
+      - src/road_accidents
+      - uv.lock
+      - artifacts/dvc/experiment.json
+      - artifacts/runs
+      - artifacts/experiments
+      - artifacts/bundles
+      - artifacts/code
+      - data/processed/datasets
+      - data/raw/prf
+      - data/raw/osm
+    outs:
+      - artifacts/dvc/report.json
+      - artifacts/evaluations:
+          persist: true
+      - artifacts/protocol:
+          persist: true
+      - artifacts/reports:
+          persist: true
+      - artifacts/packages:
+          persist: true

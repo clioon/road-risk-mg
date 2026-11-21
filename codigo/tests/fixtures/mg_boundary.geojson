@@ -1,0 +1,11 @@
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "properties": {"state": "MG", "profile": "smoke_only", "synthetic": true},
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [[[-44.1, -20.1], [-43.9, -20.1], [-43.9, -19.9], [-44.1, -19.9], [-44.1, -20.1]]]
+    }
+  }]
+}

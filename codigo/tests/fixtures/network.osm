@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="synthetic-fixture">
+  <meta osm_base="2018-12-31T23:59:59Z" />
+  <node id="1" lat="-20.0" lon="-44.02" />
+  <node id="2" lat="-20.0" lon="-44.0" />
+  <node id="3" lat="-20.0" lon="-43.98" />
+  <node id="4" lat="-19.98" lon="-44.0" />
+  <node id="5" lat="-20.04" lon="-44.06" />
+  <node id="6" lat="-20.04" lon="-44.04" />
+  <node id="7" lat="-20.01" lon="-44.01" />
+  <node id="8" lat="-19.99" lon="-44.01" />
+  <node id="9" lat="-20.0002" lon="-44.01" />
+  <node id="10" lat="-20.06" lon="-44.05" />
+  <node id="11" lat="-20.06" lon="-44.04" />
+  <node id="12" lat="-20.05" lon="-44.04" />
+  <node id="13" lat="-19.96" lon="-44.0" />
+  <way id="101"><nd ref="1"/><nd ref="2"/><tag k="highway" v="trunk"/><tag k="ref" v="BR-040"/><tag k="lanes" v="2"/><tag k="maxspeed" v="80"/></way>
+  <way id="102"><nd ref="2"/><nd ref="3"/><tag k="highway" v="trunk"/><tag k="ref" v="BR-040"/><tag k="lanes" v="2"/><tag k="maxspeed" v="80"/></way>
+  <way id="103"><nd ref="2"/><nd ref="4"/><tag k="highway" v="primary"/><tag k="ref" v="BR-381"/></way>
+  <way id="104"><nd ref="1"/><nd ref="9"/><nd ref="2"/><tag k="highway" v="trunk"/><tag k="ref" v="BR-040"/><tag k="oneway" v="yes"/></way>
+  <way id="105"><nd ref="5"/><nd ref="6"/><tag k="highway" v="primary"/><tag k="ref" v="BR-262"/></way>
+  <way id="106"><nd ref="7"/><nd ref="8"/><tag k="highway" v="primary"/><tag k="ref" v="BR-381"/><tag k="bridge" v="yes"/></way>
+  <way id="107"><nd ref="10"/><nd ref="11"/><nd ref="12"/><nd ref="10"/><tag k="highway" v="primary"/><tag k="ref" v="BR-262"/><tag k="junction" v="roundabout"/></way>
+  <way id="108"><nd ref="4"/><nd ref="13"/><tag k="highway" v="primary"/><tag k="ref" v="MG-010"/></way>
+</osm>

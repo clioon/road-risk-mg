@@ -1,0 +1,3 @@
+stage,elapsed_seconds,sampled_peak_rss_mib,interpretation
+data-acceptance-assumed-20260922.json,686.0535218999721,4866.23828125,preparation_or_development_pilot_not_final_test_metric
+development-pilot-20260922.json,615.691726500052,,preparation_or_development_pilot_not_final_test_metric

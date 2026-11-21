@@ -1,0 +1,36 @@
+profile: confirmatory
+privacy:
+  ingestion_policy: reject_before_persist
+ingestion:
+  max_buffer_bytes: 268435456
+years:
+  '2019':
+    url: https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dados-abertos-da-prf
+    catalog: true
+    selected_manifest: data/manifests/sources/b7df76584179ab7cc2c153a15938ab29f4c67369a0d86471ad813ba17e42da1f.json
+  '2020':
+    url: https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dados-abertos-da-prf
+    catalog: true
+    selected_manifest: data/manifests/sources/f92c4389c15b302e3f4c99a1f6579bf23539f387b8e010b215a95a3fd09aaf05.json
+  '2021':
+    url: https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dados-abertos-da-prf
+    catalog: true
+    selected_manifest: data/manifests/sources/b50159ba6f30e4d026c19cf819d09e210307c0e87db7c93dcbf6e47e1c1aefc4.json
+  '2022':
+    url: https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dados-abertos-da-prf
+    catalog: true
+    selected_manifest: data/manifests/sources/24bc7a541382bd3f88a7a29c53309f654f04b39986ddf609d2ae9f584ba315c4.json
+  '2023':
+    url: https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dados-abertos-da-prf
+    catalog: true
+    selected_manifest: data/manifests/sources/fcedafa7be311367a0a7b9593b8f7523969bfc65505455820e5cd9b3c649b8b2.json
+  '2024':
+    url: https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dados-abertos-da-prf
+    catalog: true
+    selected_manifest: data/manifests/sources/616abd68d5e7b325f9cf2b3bb89a5f675c4b36f60189c108a7c2c21a58d3911b.json
+  '2025':
+    url: https://drive.google.com/file/d/1-G3MdmHBt6CprDwcW99xxC4BZ2DU5ryR/view?usp=sharing/download
+    selected_manifest: data/manifests/sources/67b214e43e41e8c1fd7076ca7ae26ea94152fe22b62c5a4116ef066927d05540.json
+  '2026':
+    url: https://drive.google.com/file/d/1A3IirNm0AzRaSosA1IS94DOVmvKsn0Ol/view?usp=sharing/download
+    selected_manifest: data/manifests/sources/ff40885faea77fd1fbf07866f782a7d3f863f29edd8fa5933412c1ea3f2ed8a5.json

@@ -1,0 +1,72 @@
+name: Research pipeline checks
+
+"on":
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: CPU checks on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    defaults:
+      run:
+        working-directory: codigo
+    env:
+      UV_CONCURRENT_BUILDS: "1"
+      UV_SYSTEM_CERTS: "true"
+      DO_NOT_TRACK: "1"
+      MLFLOW_DISABLE_AGENT_HINT: "1"
+      MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING: "false"
+      DVC_NO_ANALYTICS: "1"
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.10"
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.9"
+          enable-cache: true
+          working-directory: codigo
+      - name: Install locked CPU environment
+        run: uv sync --locked --group dev
+      - name: Check dependency lock
+        run: uv lock --check
+      - name: Lint
+        run: uv run --locked ruff check src tests scripts
+      - name: Check formatting
+        run: uv run --locked ruff format --check src tests scripts
+      - name: Check types
+        run: uv run --locked mypy src
+      - name: Test without external sources
+        run: uv run --locked pytest -q -m "not external" --junitxml=artifacts/verification/ci-tests.xml
+      - name: Run public offline smoke
+        shell: pwsh
+        run: |
+          $result = uv run --locked road-risk --result-format json pipeline smoke --config configs/experiments/smoke.yaml
+          if ($LASTEXITCODE -ne 0) { throw 'Offline smoke failed.' }
+          $parsed = $result | ConvertFrom-Json
+          if ($parsed.status -ne 'succeeded') { throw 'Smoke returned an incomplete result.' }
+          $result | Set-Content -Encoding utf8 artifacts/verification/ci-smoke.json
+      - name: Audit dependencies under private research policy
+        run: uv run --locked python scripts/audit_lock.py --output artifacts/verification/ci-dependency-audit.json
+      - name: Preserve test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: |
+            codigo/artifacts/verification/*.xml
+            codigo/artifacts/verification/*.json
+            codigo/artifacts/verification/*.txt
+          if-no-files-found: ignore

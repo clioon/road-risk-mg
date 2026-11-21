@@ -1,0 +1,11 @@
+{
+  "profile": "smoke_only",
+  "effective_at": "2018-12-31T23:59:59Z",
+  "federal_way_ids": [101, 102, 103, 104, 105, 106, 107],
+  "excluded_way_ids": [108],
+  "parallel_way_ids": [101, 104],
+  "isolated_way_ids": [105, 106, 107],
+  "closed_way_ids": [107],
+  "nonconnecting_crossing": [101, 106],
+  "adjacent_way_pairs": [[101, 102], [101, 103], [101, 104], [102, 103], [102, 104], [103, 104]]
+}

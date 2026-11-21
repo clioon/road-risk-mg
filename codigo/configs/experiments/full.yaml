@@ -1,0 +1,13 @@
+profile: confirmatory
+models:
+  random_forest: configs/models/random_forest.yaml
+  xgboost: configs/models/xgboost.yaml
+  mlp: configs/models/mlp.yaml
+  graphsage: configs/models/graphsage.yaml
+  gatv2: configs/models/gatv2.yaml
+seeds: [101, 202, 303, 404, 505]
+feature_sets: [full, without_road, without_temporal, without_topology]
+ablation_test_2026: false
+selection_metric: average_precision
+seasonal_rule: common_iso_weeks_and_segments
+max_candidates_per_variant: 1

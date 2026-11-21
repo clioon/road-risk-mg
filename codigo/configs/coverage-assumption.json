@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "status": "authorized_assumption_not_verified_coverage",
+  "authorized_by": "project_owner",
+  "authorized_on": "2026-09-22",
+  "authorization_basis": "The project owner explicitly authorized assuming completeness after being offered full 2019-2025 and January-July 2026 as a documented, unproven coverage hypothesis.",
+  "assumption": "Treat the selected 2019-2025 occurrence snapshots as covering their full nominal calendar years and the selected 2026 snapshot as covering 2026-01-01 through 2026-07-31 inclusively. This is an operating assumption for conditional benchmarks, not official evidence of completeness.",
+  "official_coverage_verified": false,
+  "historical_publication_assumed": false,
+  "known_gaps": "not established; absence of a known gap is not proof that no gap exists",
+  "limitations": [
+    "Missing records or months could create false negative segment-week labels and bias prevalence and all predictive metrics.",
+    "The impact is not limited to month-of-year features and is not asserted to be negligible.",
+    "2026 remains a partial-year evaluation and must not be annualized.",
+    "Historical accident features remain unavailable unless prior publication is separately demonstrated."
+  ],
+  "preserved_protocol": {
+    "state": "MG",
+    "osm_effective_at": "2018-12-31T23:59:59Z",
+    "train": "2019-2023",
+    "validation": "2024",
+    "main_test": "2025",
+    "additional_test": "2026-through-July",
+    "seeds": [101, 202, 303, 404, 505],
+    "full_runs": 25,
+    "gnn_ablation_runs": 30,
+    "test_driven_reselection_forbidden": true
+  },
+  "snapshots": [
+    {"year": 2019, "snapshot_id": "sha256:3a7022edf4690334aae309cb1b01a7c98649bd9a0a05ce7d0bd3e7416183155d", "start": "2019-01-01", "end": "2019-12-31"},
+    {"year": 2020, "snapshot_id": "sha256:92cb80217a17268c4f6fb8f91f36284ce90f28aac7053f0e857fafa5e838c9d8", "start": "2020-01-01", "end": "2020-12-31"},
+    {"year": 2021, "snapshot_id": "sha256:a246e0d1205860a475335f8996b532cbe2ca4c1c349bb5a1531bf47a779e3901", "start": "2021-01-01", "end": "2021-12-31"},
+    {"year": 2022, "snapshot_id": "sha256:5ace05699b82c720e47e28768323630310ef7fe300db57388da246fb448c8855", "start": "2022-01-01", "end": "2022-12-31"},
+    {"year": 2023, "snapshot_id": "sha256:b233c47d16b3980a6692472f9fe1bbab57698700fbb918d22628a5c0a382d985", "start": "2023-01-01", "end": "2023-12-31"},
+    {"year": 2024, "snapshot_id": "sha256:20cec26ae45e794d57c0f4d2c0915d3f6f84a9895b3e1b9c0cd126f075700645", "start": "2024-01-01", "end": "2024-12-31"},
+    {"year": 2025, "snapshot_id": "sha256:52c8a631ac9d428bf845e2fa996b8c61f66b219f7014a61d292f9d95d186bb0f", "start": "2025-01-01", "end": "2025-12-31"},
+    {"year": 2026, "snapshot_id": "sha256:a58eaf076957b20467f2eaf18f07593780936f8ac2c0c5ae1d22c7855e72280b", "start": "2026-01-01", "end": "2026-07-31"}
+  ]
+}

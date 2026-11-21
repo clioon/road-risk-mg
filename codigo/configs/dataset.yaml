@@ -1,0 +1,25 @@
+profile: confirmatory
+boundary_path: data/raw/osm/mg-boundary.geojson
+study:
+  state: MG
+  timezone: America/Sao_Paulo
+  start: '2019-01-01'
+  end_exclusive: '2027-01-01'
+splits:
+  train: 2019-01-01/2024-01-01
+  validation: 2024-01-01/2025-01-01
+  test_2025: 2025-01-01/2026-01-01
+  test_2026: 2026-01-01/2027-01-01
+coverage:
+  require_evidence: true
+weeks:
+  policy: complete_within_split
+spatial:
+  metric_crs: EPSG:5880
+  max_snap_distance_m: 500
+  osm_effective_at: '2018-12-31T23:59:59Z'
+temporal:
+  lags_weeks: [1, 4, 13, 52]
+  availability_policy: documented_before_prediction
+privacy:
+  require_passed_snapshot: true
