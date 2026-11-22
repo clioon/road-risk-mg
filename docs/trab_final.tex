@@ -160,143 +160,8 @@ testes, enquanto a topologia apresentou efeito dependente da
 arquitetura: pequeno ganho para GraphSAGE e perda para GATv2. Esse
 achado não invalida GNNs de forma geral; delimita o que foi observado
 com esta base, este orçamento e estas configurações. As seções
-seguintes apresentam os fundamentos, os trabalhos correlatos, a
-metodologia, os resultados e suas limitações.
-
-% ============================================================
-% Fundamentos teóricos: máximo de três páginas
-% ============================================================
-\section{Fundamentos Teóricos}
-\label{sec:fundamentos}
-
-\subsection{Predição por segmento e semana}
-
-Considere uma malha viária representada por um grafo
-$G=(V,E)$, em que cada nó $v\in V$ corresponde a um segmento físico de
-rodovia e cada aresta $(u,v)\in E$ indica que dois segmentos
-compartilham uma junção da rede. Para cada semana $t$, o segmento
-possui um vetor de atributos $\mathbf{x}_{v,t}$ e um alvo binário
-\begin{equation}
-y_{v,t} =
-\begin{cases}
-1, & \text{se houve ao menos uma ocorrência na semana;}\\
-0, & \text{caso contrário.}
-\end{cases}
-\end{equation}
-A formulação difere da previsão de contagem, gravidade ou causa do
-acidente. Ela também exige que as unidades negativas sejam criadas
-somente em semanas observadas integralmente; do contrário, ausência de
-dado poderia ser confundida com ausência de ocorrência.
-
-Os atributos estáticos descrevem comprimento, tipo de via, número de
-faixas, velocidade máxima e sinuosidade. Indicadores explícitos
-registram atributos ausentes. Os atributos temporais codificam ano,
-mês, semana ISO e componentes cíclicos do calendário. Históricos de
-acidentes somente podem ser empregados quando sua cobertura e sua
-disponibilidade antes da previsão são demonstráveis. Essa restrição é
-essencial: usar informação publicada depois da semana-alvo introduziria
-vazamento temporal e superestimaria o desempenho.
-
-\subsection{Modelos tabulares de referência}
-
-Random Forest combina múltiplas árvores treinadas com amostras e
-subconjuntos de atributos, reduzindo a variância de uma árvore
-individual e modelando relações não lineares \cite{breiman2001}.
-XGBoost constrói árvores sequencialmente por \textit{gradient
-boosting}, com regularização e otimizações para treinamento eficiente
-\cite{chen2016}. Ambos são referências adequadas para atributos
-heterogêneos e relações não lineares, sem utilizar a adjacência entre
-segmentos.
-
-A MLP aplica transformações afins intercaladas por funções não
-lineares. Neste projeto, uma camada oculta produz
-\begin{equation}
-\mathbf{h}_{v,t} =
-\operatorname{ReLU}(W_1\mathbf{x}_{v,t}+\mathbf{b}_1),
-\qquad
-\hat{p}_{v,t} =
-\sigma(W_2\mathbf{h}_{v,t}+b_2),
-\end{equation}
-com \textit{dropout} durante o treinamento. A MLP controla se parte do
-ganho de uma GNN poderia decorrer apenas de uma arquitetura neural,
-sem propagação na rede \cite{goodfellow2016}.
-
-\subsection{Redes neurais em grafos}
-
-GNNs atualizam a representação de cada nó agregando mensagens de sua
-vizinhança. Em forma geral, uma camada de passagem de mensagens pode
-ser escrita como
-\begin{equation}
-\mathbf{h}^{(\ell+1)}_v =
-\phi^{(\ell)}
-\left(
-\mathbf{h}^{(\ell)}_v,\,
-\operatorname{AGG}_{u\in\mathcal{N}(v)}
-\psi^{(\ell)}
-\left(\mathbf{h}^{(\ell)}_v,\mathbf{h}^{(\ell)}_u\right)
-\right),
-\end{equation}
-em que $\mathcal{N}(v)$ é o conjunto de segmentos adjacentes,
-$\psi$ produz mensagens, $\operatorname{AGG}$ combina mensagens de
-forma invariável à ordem e $\phi$ atualiza o nó.
-
-GraphSAGE aprende uma função de agregação para combinar a representação
-do próprio nó com a de seus vizinhos \cite{hamilton2017}. A variante
-utilizada possui duas camadas: a primeira projeta os atributos para 64
-dimensões com agregação da vizinhança, ReLU e \textit{dropout}; a
-segunda produz um \textit{logit} por segmento. Seu caráter indutivo
-permite aplicar os parâmetros aprendidos a observações de novas
-semanas mantendo a mesma estrutura de segmentos.
-
-GATv2 substitui a agregação uniforme por coeficientes de atenção
-aprendidos. Para uma aresta $(u,v)$, a contribuição de $u$ é ponderada
-por $\alpha_{vu}$, normalizado entre os vizinhos de $v$. A formulação
-GATv2 corrige limitações de atenção estática das GATs originais e
-permite que o ranqueamento dos vizinhos dependa do nó consultado
-\cite{brody2022}. A implementação deste estudo usa duas cabeças na
-primeira camada, sem concatenação, 64 canais ocultos e uma camada final
-com uma cabeça. Maior flexibilidade, contudo, não garante melhor
-generalização quando o sinal topológico é fraco, o treinamento é curto
-ou as características dos vizinhos adicionam ruído.
-
-\subsection{Desbalanceamento, métricas e validação temporal}
-
-Acidentes são eventos raros na escala segmento--semana. Se apenas
-1,45\% das unidades forem positivas, um classificador que sempre
-prediz a classe negativa terá acurácia de 98,55\%, embora não encontre
-nenhum acidente. Por isso, a acurácia isolada é inadequada. Precisão,
-revocação e F1 são definidas por
-\begin{equation}
-\begin{aligned}
-\text{Precisão} &= \frac{VP}{VP+FP},
-& \text{Revocação} &= \frac{VP}{VP+FN},\\
-F1 &= \frac{2\,\text{Precisão}\,\text{Revocação}}
-{\text{Precisão}+\text{Revocação}}.
-\end{aligned}
-\end{equation}
-AUROC mede a ordenação entre positivos e negativos ao variar o limiar.
-Em bases muito desbalanceadas, a curva precisão--revocação evidencia
-melhor o compromisso sobre a classe rara \cite{saito2015}. A métrica
-principal adotada foi AP, calculada pela média de precisão ponderada
-pelos incrementos de revocação, conforme
-\begin{equation}
-\operatorname{AP}=\sum_n (R_n-R_{n-1})P_n.
-\end{equation}
-Sua referência aleatória é aproximadamente a prevalência positiva.
-
-O peso da classe positiva foi estimado somente no treino e usado nos
-cinco modelos: \texttt{class\_weight=balanced} no Random Forest,
-\texttt{scale\_pos\_weight} no XGBoost e perda de entropia cruzada
-binária ponderada nas redes. Os limiares foram escolhidos pela maior
-F1 na validação de 2024 e congelados antes dos testes.
-
-Uma divisão aleatória misturaria semanas passadas e futuras e poderia
-favorecer padrões específicos do período. A avaliação temporal
-preserva a ordem dos dados: transformadores e pesos são ajustados em
-2019--2023, decisões de seleção usam 2024, e 2025 e 2026 permanecem
-fora do ajuste. A dispersão entre cinco sementes quantifica
-sensibilidade à inicialização ou aleatoriedade, mas não constitui
-intervalo de confiança nem teste de significância.
+seguintes apresentam os trabalhos correlatos, a metodologia, os
+resultados e suas limitações.
 
 % ============================================================
 % Trabalhos correlatos: máximo de três páginas
@@ -504,16 +369,23 @@ foi reutilizado em validação e testes.
 
 \subsection{Modelos e protocolo experimental}
 
-O Random Forest utilizou 50 árvores, profundidade máxima 12, mínimo de
-cinco amostras por folha e subconjunto de atributos pela raiz quadrada.
-O XGBoost utilizou 100 árvores, profundidade 6, taxa de aprendizado
-0,05, subamostragem de 0,8 e amostragem de colunas de 0,8. MLP,
-GraphSAGE e GATv2 possuem uma camada oculta de 64 unidades, \textit{dropout}
-0,1, Adam com taxa $10^{-3}$ e decaimento $10^{-4}$, treinados por
-cinco épocas. O GATv2 usa duas cabeças de atenção na primeira camada.
+O Random Forest \cite{breiman2001} utilizou 50 árvores, profundidade
+máxima 12, mínimo de cinco amostras por folha e subconjunto de atributos
+pela raiz quadrada. O XGBoost \cite{chen2016} utilizou 100 árvores,
+profundidade 6, taxa de aprendizado 0,05, subamostragem de 0,8 e
+amostragem de colunas de 0,8. MLP \cite{goodfellow2016}, GraphSAGE
+\cite{hamilton2017} e GATv2 \cite{brody2022} possuem uma camada oculta
+de 64 unidades, \textit{dropout} 0,1, Adam com taxa $10^{-3}$ e
+decaimento $10^{-4}$, treinados por cinco épocas. O GATv2 usa duas
+cabeças de atenção na primeira camada.
 O orçamento foi definido antes dos testes e contém um candidato por
 família ou variante; não representa busca exaustiva nem garantia de
 convergência.
+
+A ponderação das classes foi calculada somente no treinamento:
+\texttt{class\_weight=balanced} no Random Forest,
+\texttt{scale\_pos\_weight} no XGBoost e perda de entropia cruzada
+binária ponderada nas redes.
 
 \begin{table}[htbp]
 \centering
@@ -543,12 +415,13 @@ remove mensagens de vizinhos.
 
 \subsection{Avaliação, congelamento e reprodução}
 
-A seleção de configurações, a referência tabular e os limiares foram
-definidos com a validação de 2024. Após o congelamento, os mesmos pesos,
+A seleção de configurações e a referência tabular foram definidas com
+a validação de 2024. Os limiares foram escolhidos pela maximização do
+F1 nesse mesmo conjunto. Após o congelamento, os mesmos pesos,
 transformadores e limiares foram aplicados aos testes de 2025 e 2026,
-sem novo ajuste. AP foi a métrica principal; AUROC, F1, precisão e
-revocação foram métricas complementares. Os resultados são médias e
-desvios-padrão amostrais entre sementes.
+sem novo ajuste. AP foi a métrica principal \cite{saito2015}; AUROC, F1,
+precisão e revocação foram métricas complementares. Os resultados são
+médias e desvios-padrão amostrais entre sementes.
 
 Fontes, configurações, código, modelos, preditores, escores e relatórios
 foram identificados por hashes. Um pacote portátil foi criado após a
