@@ -21,6 +21,7 @@ codigo/
 docs/
   trab_final.tex         Relatório final oficial em LaTeX
   imagens/               Imagens do relatório
+  apresentacao/          Slides em PDF, fonte HTML/CSS e roteiro de 12 minutos
 resultados/              Tabelas, gráficos e recibos do experimento histórico
 reproducao/
   confirmatory.tar.gz    Pacote histórico com código, dados e modelos treinados

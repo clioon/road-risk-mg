@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Giovanni Willik Del Piccolo, João Victor De Pascale Souza, Lion Chen">
+  <title>Predição Espaço-Temporal de Acidentes de Trânsito em Rodovias Federais de Minas Gerais com Graph Neural Networks e Representação Estrutural da Malha Viária</title>
+  <style>
+    :root {
+      --ink: #193442; --muted: #526773; --teal: #087e80; --mint: #7de2d3;
+      --soft: #e9f4f3; --paper: #f5f8fa; --line: #d6e1e5; --dark: #102d3a;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { background: #dce4e8; color: var(--ink); font-family: "DejaVu Sans", Arial, sans-serif; }
+    h1, h2, h3, p, figure { margin: 0; }
+    .slide {
+      width: 1280px; height: 720px; padding: 40px 56px 22px; margin: 24px auto;
+      display: flex; flex-direction: column; position: relative; background: var(--paper);
+      break-after: page; box-shadow: 0 12px 35px #19344220;
+    }
+    .slide::before { content: ""; position: absolute; inset: 0 0 auto; height: 6px; background: var(--teal); }
+    .eyebrow { display: flex; align-items: center; gap: 12px; color: var(--teal); font-size: 14px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 14px; }
+    .section-no { display: inline-grid; place-items: center; min-width: 34px; height: 28px; border-radius: 7px; background: var(--soft); letter-spacing: 0; }
+    h2 { font-size: 40px; line-height: 1.17; letter-spacing: -1.2px; font-weight: 700; }
+    h3 { font-size: 23px; line-height: 1.28; margin-bottom: 12px; }
+    p { font-size: 21px; line-height: 1.43; }
+    .content { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 18px; justify-content: center; padding-top: 24px; }
+    .grid { display: grid; gap: 22px; }
+    .two { grid-template-columns: 1fr 1fr; }
+    .wide-left { grid-template-columns: 1.65fr 1fr; }
+    .three { grid-template-columns: repeat(3, 1fr); }
+    .card { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 25px 28px; }
+    .card.teal { background: var(--soft); border-color: #c5e4df; }
+    .card.dark { background: var(--dark); border-color: var(--dark); color: white; }
+    .card.dark .small { color: #c1d4de; }
+    .label { color: var(--muted); font-size: 14px; line-height: 1.35; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+    .small { font-size: 17px; line-height: 1.45; color: var(--muted); }
+    .muted { color: var(--muted); }
+    .accent { color: var(--teal); }
+    .big { font-size: 57px; line-height: 1.08; font-weight: 700; letter-spacing: -2px; }
+    .huge { font-size: 76px; line-height: 1.05; font-weight: 700; letter-spacing: -3px; }
+    .space { margin-top: 18px; }
+    .takeaway { padding: 16px 22px; background: var(--soft); border-left: 5px solid var(--teal); border-radius: 0 10px 10px 0; font-size: 21px; line-height: 1.32; font-weight: 700; }
+    .source { font-size: 12px; line-height: 1.4; color: var(--muted); margin-top: 14px; }
+    footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 11px; margin-top: 13px; font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+    .page-no { color: var(--ink); font-size: 17px; font-weight: 700; letter-spacing: 0; }
+    .pill { display: inline-block; border-radius: 7px; padding: 7px 11px; background: var(--soft); color: var(--teal); font-size: 16px; font-weight: 700; }
+    .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 15px; }
+    .chip { background: var(--paper); border: 1px solid var(--line); padding: 9px 13px; border-radius: 8px; font-size: 19px; }
+    .list { display: flex; flex-direction: column; gap: 17px; }
+    .list-row { display: flex; gap: 15px; align-items: flex-start; }
+    .dot { flex-shrink: 0; width: 9px; height: 9px; margin-top: 10px; background: var(--teal); border-radius: 50%; }
+    .number { display: grid; place-items: center; flex-shrink: 0; width: 35px; height: 35px; border-radius: 10px; color: var(--teal); background: var(--soft); font-size: 18px; font-weight: 700; }
+    .dark-slide { background: var(--dark); color: white; }
+    .dark-slide .eyebrow { color: var(--mint); }
+    .dark-slide .source, .dark-slide footer, .dark-slide .small { color: #c1d4de; }
+    .dark-slide footer { border-color: #3b5663; }
+    .dark-slide .page-no { color: white; }
+    .dark-slide .section-no { background: #254754; color: var(--mint); }
+    .cover { padding-top: 45px; }
+    .cover .cover-main { flex: 1; position: relative; padding-top: 23px; }
+    .cover h1 { max-width: 1090px; font-size: 44px; line-height: 1.16; letter-spacing: -1.3px; position: relative; z-index: 1; }
+    .cover .subtitle { margin-top: 26px; max-width: 940px; color: var(--mint); font-size: 24px; line-height: 1.4; position: relative; z-index: 1; }
+    .cover .authors { margin-top: 33px; font-size: 17px; line-height: 1.65; position: relative; z-index: 1; }
+    .cover .motif { position: absolute; width: 310px; height: 220px; right: -10px; bottom: 9px; opacity: .23; }
+    #slide-3 .content { gap: 14px; }
+    #slide-3 .grid { gap: 16px; }
+    .research-card { padding: 16px 22px; }
+    .research-card h3 { font-size: 21px; margin: 6px 0; }
+    .research-card p { font-size: 18px; }
+    .research-card .small { font-size: 16px; margin-top: 8px; }
+    .flow { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center; gap: 10px; margin-top: 18px; }
+    .flow .card { padding: 17px 19px; }
+    .arrow { color: var(--teal); text-align: center; font-size: 32px; }
+    .map-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 19px 26px; }
+    .map-card img { width: 100%; height: 279px; object-fit: contain; mix-blend-mode: multiply; }
+    .map-card figcaption { margin-top: 9px; text-align: center; font-size: 13px; color: var(--muted); }
+    .diagram svg { width: 100%; height: 205px; display: block; }
+    svg text { font-family: "DejaVu Sans", Arial, sans-serif; }
+    .stats-strip .card { padding: 17px 23px; }
+    .stats-strip .big { font-size: 43px; }
+    .stats-strip .small { margin-top: 5px; }
+    .feature-row { display: grid; grid-template-columns: 42px 1fr; gap: 15px; margin-top: 16px; }
+    .feature-row h3 { font-size: 21px; margin-bottom: 5px; }
+    .feature-row p { font-size: 18px; }
+    .model-stack { display: flex; flex-direction: column; gap: 17px; }
+    .model-stack .card { padding: 24px 27px; }
+    .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; position: relative; }
+    .timeline .card { padding: 23px; position: relative; border-top: 5px solid var(--teal); }
+    .timeline .year { font-size: 31px; line-height: 1.15; font-weight: 700; letter-spacing: -1px; margin: 10px 0; }
+    .timeline p { font-size: 19px; }
+    .timeline .small { margin-top: 7px; font-size: 16px; }
+    .timeline .card:not(:last-child)::after { content: "→"; position: absolute; right: -22px; top: 58px; z-index: 2; font-size: 27px; color: var(--teal); }
+    .protocol-note { display: grid; grid-template-columns: 1.1fr 1fr; gap: 30px; padding: 8px 5px; }
+    .protocol-note p { font-size: 19px; }
+    .chart-layout { grid-template-columns: 2.3fr 1fr; align-items: stretch; }
+    .chart { padding: 20px 24px; }
+    .legend { display: flex; gap: 23px; align-items: center; font-size: 16px; margin: 0 0 18px 154px; }
+    .legend i { display: inline-block; width: 23px; height: 8px; border-radius: 2px; background: var(--teal); margin-right: 7px; }
+    .legend .second { background: var(--ink); }
+    .chart-row { display: grid; grid-template-columns: 140px 1fr; gap: 14px; align-items: center; margin-bottom: 12px; }
+    .model-name { font-size: 19px; font-weight: 700; }
+    .series { display: grid; grid-template-columns: 1fr 61px; align-items: center; gap: 10px; height: 24px; }
+    .track { position: relative; height: 12px; background: #edf2f4; border-radius: 3px; }
+    .bar { width: calc(var(--value) * 5%); height: 12px; border-radius: 3px; background: var(--teal); }
+    .series.second .bar { background: var(--ink); }
+    .whisker { position: absolute; top: 2px; height: 8px; left: calc((var(--value) - var(--sd)) * 5%); width: calc(var(--sd) * 10%); border: 1px solid #193442; border-width: 0 1px; }
+    .whisker::after { content: ""; position: absolute; top: 3px; left: 0; width: 100%; border-top: 1px solid #193442; }
+    .value { font-size: 17px; font-weight: 700; color: var(--teal); }
+    .series.second .value { color: var(--ink); }
+    .chart-axis { margin: 6px 71px 0 154px; border-top: 1px solid var(--line); padding-top: 6px; display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; }
+    .chart-caption { text-align: center; margin: 10px 0 0 154px; font-size: 14px; color: var(--muted); }
+    .result-card { display: flex; flex-direction: column; justify-content: center; gap: 19px; }
+    .result-card .big { font-size: 52px; }
+    .result-card .label { color: #c1d4de; }
+    .result-card h3 { color: var(--mint); margin: 0; font-size: 29px; }
+    table { width: 100%; border-collapse: collapse; font-size: 20px; }
+    th { text-align: left; font-size: 18px; color: var(--muted); padding: 13px 14px; border-bottom: 2px solid var(--line); }
+    td { padding: 16px 14px; border-bottom: 1px solid var(--line); }
+    th:not(:first-child), td:not(:first-child) { text-align: right; }
+    .full-row { background: var(--soft); font-weight: 700; }
+    .table-card { padding: 16px 12px; }
+    .table-card .small { padding: 14px 14px 0; font-size: 16px; }
+    .deltas { display: flex; flex-direction: column; gap: 17px; }
+    .deltas .card { padding: 22px 25px; }
+    .deltas .big { font-size: 47px; margin: 6px 0; }
+    .delta-caption { font-size: 15px; line-height: 1.4; color: var(--muted); }
+    .metric-pair .card { padding: 22px 25px; }
+    .metric-pair .big { margin: 15px 0 7px; }
+    .signals { display: flex; gap: 15px; margin: 25px 0; }
+    .signal { width: 65px; height: 69px; display: grid; place-items: center; border: 2px solid var(--line); border-radius: 11px; color: #69818d; background: #eef3f5; font-size: 30px; }
+    .signal.positive { background: var(--teal); color: white; border-color: var(--teal); }
+    .signal-legend { display: flex; gap: 16px; font-size: 17px; margin-bottom: 18px; }
+    .limits { gap: 15px; }
+    .limits .list-row { padding: 14px 18px; background: white; border: 1px solid var(--line); border-radius: 11px; align-items: center; }
+    .limits p { font-size: 19px; line-height: 1.35; }
+    .replay { display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+    .replay h3 { font-size: 25px; margin: 0; color: var(--mint); }
+    .replay .small { color: #c1d4de; }
+    .replay .huge + .small { margin-top: 10px; }
+    .replay .pill { background: #264956; color: var(--mint); font-size: 14px; }
+    .conclusion-cards .card { background: #1c3c4a; border-color: #3b5663; }
+    .conclusion-cards .label { color: var(--mint); }
+    .conclusion-cards h3 { margin: 14px 0; color: white; font-size: 25px; }
+    .conclusion-cards p { font-size: 19px; color: #d3e1e7; }
+    .next-steps { display: flex; gap: 22px; margin-top: 2px; align-items: center; border-top: 1px solid #3b5663; padding-top: 24px; }
+    .next-steps .label { color: var(--mint); min-width: 180px; }
+    .next-steps p { font-size: 18px; }
+    .closing { color: var(--mint); font-size: 23px; margin-top: 16px; }
+    .references .content { gap: 10px; }
+    .reference { display: grid; grid-template-columns: 240px 1fr; gap: 22px; padding: 11px 22px; background: white; border: 1px solid var(--line); border-radius: 10px; }
+    .reference strong { font-size: 18px; }
+    .reference p { font-size: 16px; line-height: 1.4; }
+    .variables-card { padding: 22px 25px; }
+    .variables-card h3 { margin: 10px 0 14px; }
+    .variable-row + .variable-row { margin-top: 12px; }
+    .variable-row strong { display: block; font-size: 18px; line-height: 1.4; }
+    .variable-row p { font-size: 17px; line-height: 1.4; margin-top: 3px; }
+    .variables-card .small { font-size: 15px; margin-top: 14px; }
+    .f1-table td { padding: 13px 14px; }
+    .f1-table th { font-size: 17px; }
+    .f1-table { font-size: 18px; }
+    .f1-explanation { padding: 20px 25px; }
+    .f1-explanation .formula { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+    .f1-explanation h3 { font-size: 20px; margin: 12px 0 5px; }
+    .f1-explanation p { font-size: 17px; line-height: 1.4; }
+    a { color: var(--teal); text-decoration: none; }
+    @page { size: 1280px 720px; margin: 0; }
+    @media print {
+      html, body { width: 1280px; background: white; }
+      .slide { margin: 0; box-shadow: none; }
+      .slide:last-child { break-after: auto; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <section class="slide dark-slide cover" id="slide-1" data-duration="25" aria-label="Slide 1: título">
+    <div class="eyebrow">USP · Rodovias federais de Minas Gerais</div>
+    <div class="cover-main">
+      <h1>Predição Espaço-Temporal de Acidentes de Trânsito em Rodovias Federais de Minas Gerais com Graph Neural Networks e Representação Estrutural da Malha Viária</h1>
+      <p class="subtitle">A conectividade da malha viária ajuda a prever ocorrências semanais?</p>
+      <div class="authors">Giovanni Willik Del Piccolo · João Victor De Pascale Souza · Lion Chen<br><span class="small">Universidade de São Paulo</span></div>
+      <svg class="motif" viewBox="0 0 310 220" aria-hidden="true">
+        <g fill="none" stroke="#7de2d3" stroke-width="3"><path d="M10 175L75 110L150 145L230 75L300 95M75 110L90 30L230 75M150 145L210 205L300 95"/></g>
+        <g fill="#7de2d3"><circle cx="10" cy="175" r="7"/><circle cx="75" cy="110" r="9"/><circle cx="150" cy="145" r="9"/><circle cx="230" cy="75" r="9"/><circle cx="300" cy="95" r="7"/><circle cx="90" cy="30" r="7"/><circle cx="210" cy="205" r="7"/></g>
+      </svg>
+    </div>
+    <footer><span>ROAD RISK MG · APRESENTAÇÃO DO PROJETO</span><span class="page-no">01 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-2" data-duration="45" aria-label="Slide 2: problema">
+    <header><div class="eyebrow"><span class="section-no">01</span> Problema e pergunta</div><h2>A vizinhança pode melhorar a predição?</h2></header>
+    <main class="content">
+      <div class="grid two">
+        <div class="card teal"><div class="label">Por que prever?</div><h3 class="space">Antecipar para priorizar</h3><p>Apoiar fiscalização, inspeções e análises de engenharia viária.</p><h3 class="space">Hipótese espacial</h3><p>Trechos conectados podem compartilhar fluxos e características.</p></div>
+        <div class="card"><div class="label">Unidade de análise</div><h3 class="space">Segmento + semana</h3><div class="list"><div class="list-row"><span class="number">1</span><p>Ao menos um acidente registrado.</p></div><div class="list-row"><span class="number">0</span><p>Nenhum registro na semana elegível.</p></div></div><p class="small space">Várias ocorrências na mesma unidade continuam sendo um único positivo.</p></div>
+      </div>
+      <div class="takeaway">Mesma população e mesmos atributos: o que muda é o acesso à vizinhança.</div>
+    </main>
+    <p class="source">Fonte: relatório final, Introdução e Metodologia. Ausência de registro não comprova ausência de acidente.</p>
+    <footer><span>ROAD RISK MG · CONTEXTO</span><span class="page-no">02 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-3" data-duration="45" aria-label="Slide 3: trabalhos correlatos">
+    <header><div class="eyebrow"><span class="section-no">02</span> Trabalhos correlatos</div><h2>O que já foi feito e onde está a lacuna</h2></header>
+    <main class="content">
+      <div class="grid two">
+        <article class="card research-card"><span class="pill">Brasil · PRF</span><h3>Araújo (2022)</h3><p>Regras de associação entre características e acidentes.</p><p class="small">Descreve padrões; não avalia predição futura.</p></article>
+        <article class="card research-card"><span class="pill">Brasil · Hotspots</span><h3>Amorim et al. (2023)</h3><p>Classificação de severidade em trechos críticos.</p><p class="small">Outro alvo e outra população de análise.</p></article>
+        <article class="card research-card"><span class="pill">EUA · Grafos</span><h3>Nippani et al. (2023)</h3><p>GNNs para ocorrência e contagem de acidentes.</p><p class="small">Outra malha, outras fontes e outra exposição.</p></article>
+        <article class="card research-card"><span class="pill">Modalidades e incerteza</span><h3>Zhang (2026) · Gao (2024)</h3><p>GNN multimodal; contagem probabilística.</p><p class="small">Mais modalidades ou outra formulação do alvo.</p></article>
+      </div>
+      <div class="takeaway">Nossa lacuna: comparação temporal comum entre modelos tabulares e GNNs em Minas Gerais.</div>
+    </main>
+    <p class="source">Fonte: relatório final, Trabalhos Relacionados. Não há comparação direta de métricas entre tarefas distintas.</p>
+    <footer><span>ROAD RISK MG · LITERATURA</span><span class="page-no">03 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-4" data-duration="45" aria-label="Slide 4: dados">
+    <header><div class="eyebrow"><span class="section-no">03</span> Dados e curadoria</div><h2>Duas fontes abertas, uma base auditável</h2></header>
+    <main class="content">
+      <div class="grid wide-left">
+        <div>
+          <div class="grid two"><div class="card"><div class="label">Ocorrências · PRF</div><h3 class="space">2019–jul. 2026</h3><p class="small">8 arquivos anuais.<br>2026 é parcial.</p></div><div class="card"><div class="label">Malha · OSM</div><h3 class="space">Dezembro de 2018</h3><p class="small">Rede federal histórica recortada ao estado de MG.</p></div></div>
+          <div class="flow"><div class="card"><div class="big">67.023</div><p class="small">ocorrências válidas</p></div><div class="arrow">→</div><div class="card teal"><div class="big accent">66.186</div><p class="small">associadas à malha</p></div></div>
+          <p class="space"><strong class="accent">98,75%</strong> de associação ao segmento mais próximo, em até <strong>500 m</strong>.</p>
+        </div>
+        <figure class="card map-card"><img src="malha-mg.png" alt="Malha federal histórica no território de Minas Gerais"><figcaption>OSM, dezembro de 2018<br>Adaptado da figura do relatório.</figcaption></figure>
+      </div>
+    </main>
+    <p class="source">Fonte: relatório final, Metodologia e Resultados. Distâncias, exclusões e motivos de rejeição foram registrados.</p>
+    <footer><span>ROAD RISK MG · BASE DE DADOS</span><span class="page-no">04 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-5" data-duration="55" aria-label="Slide 5: variáveis de cada fonte">
+    <header><div class="eyebrow"><span class="section-no">04</span> Variáveis por fonte</div><h2>Quais variáveis vêm de cada base?</h2></header>
+    <main class="content">
+      <div class="grid two">
+        <div class="card variables-card">
+          <div class="label">PRF · Ocorrências</div><h3>Localizar, validar e construir o alvo</h3>
+          <div class="variable-row"><strong>id · uf</strong><p>Identificação, controle de duplicatas e filtro para MG.</p></div>
+          <div class="variable-row"><strong>data_inversa · horario</strong><p>Data e hora: determinam a semana da ocorrência.</p></div>
+          <div class="variable-row"><strong>latitude · longitude</strong><p>Posição usada na associação ao segmento mais próximo.</p></div>
+          <p class="small">br e km: metadados, não preditores. Causa, gravidade e clima da ocorrência não entram nos modelos.</p>
+        </div>
+        <div class="card teal variables-card">
+          <div class="label">OSM · Malha histórica</div><h3>Atributos viários e conectividade</h3>
+          <div class="variable-row"><strong>highway · lanes · maxspeed</strong><p>Tipo de via, número de faixas e velocidade máxima.</p></div>
+          <div class="variable-row"><strong>Geometria dos segmentos</strong><p>Comprimento, sinuosidade e associação espacial.</p></div>
+          <div class="variable-row"><strong>Junções OSM · ref · osmid</strong><p>Adjacência, recorte federal e rastreabilidade.</p></div>
+          <p class="small">IDs e referências não são preditores tabulares; só GNNs recebem adjacência.</p>
+        </div>
+      </div>
+      <div class="takeaway">PRF → alvo. OSM → via e grafo. Calendário → semana de previsão, conhecida antecipadamente.</div>
+    </main>
+    <p class="source">Fonte: código de curadoria PRF, construção dos segmentos e atributos temporais; relatório final, Metodologia.</p>
+    <footer><span>ROAD RISK MG · BASE DE DADOS</span><span class="page-no">05 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-6" data-duration="55" aria-label="Slide 6: grafo">
+    <header><div class="eyebrow"><span class="section-no">05</span> Representação estrutural</div><h2>Da malha viária ao grafo de segmentos</h2></header>
+    <main class="content">
+      <div class="card diagram">
+        <svg viewBox="0 0 1080 215" role="img" aria-label="Trechos A, B e C que compartilham uma junção tornam-se três nós conectados entre si">
+          <defs><marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#087e80"/></marker></defs>
+          <g font-size="22" font-weight="700" fill="#193442"><text x="35" y="28">Malha viária</text><text x="615" y="28">Grafo de segmentos</text></g>
+          <g stroke="#087e80" stroke-width="7" fill="none"><path d="M45 113H195L325 60M195 113L325 175"/></g>
+          <circle cx="195" cy="113" r="10" fill="#193442"/>
+          <g fill="#193442" font-size="23"><text x="105" y="96">A</text><text x="280" y="70">B</text><text x="275" y="181">C</text></g>
+          <text x="91" y="208" fill="#526773" font-size="17">Junção registrada no OSM</text>
+          <path d="M410 113H530" stroke="#087e80" stroke-width="3" marker-end="url(#arrowhead)"/>
+          <g stroke="#087e80" stroke-width="3" fill="none"><path d="M664 117L837 68L837 165Z"/></g>
+          <g fill="#e9f4f3" stroke="#087e80" stroke-width="3"><circle cx="664" cy="117" r="27"/><circle cx="837" cy="68" r="27"/><circle cx="837" cy="165" r="27"/></g>
+          <g fill="#087e80" font-size="23" font-weight="700" text-anchor="middle"><text x="664" y="125">A</text><text x="837" y="76">B</text><text x="837" y="173">C</text></g>
+          <text x="903" y="98" fill="#526773" font-size="18"><tspan x="903">Cada trecho</tspan><tspan x="903" dy="26">vira um nó.</tspan><tspan x="903" dy="26">Junções criam</tspan><tspan x="903" dy="26">vizinhanças.</tspan></text>
+        </svg>
+      </div>
+      <div class="grid three stats-strip"><div class="card"><div class="big">10.973</div><p class="small">segmentos / nós</p></div><div class="card"><div class="big">14.636</div><p class="small">pares adjacentes únicos</p></div><div class="card"><div class="big">92</div><p class="small">componentes conexos</p></div></div>
+      <div class="takeaway">Cruzamentos apenas geométricos não conectam nós. Pistas paralelas são preservadas.</div>
+    </main>
+    <p class="source">Fonte: relatório final, Grafo e estrutura da rede. Diagrama esquemático; componentes desconectados e isolados são mantidos.</p>
+    <footer><span>ROAD RISK MG · MÉTODO</span><span class="page-no">06 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-7" data-duration="45" aria-label="Slide 7: atributos e modelos">
+    <header><div class="eyebrow"><span class="section-no">06</span> Atributos e modelos</div><h2>O que é igual e o que muda entre modelos</h2></header>
+    <main class="content">
+      <div class="grid two">
+        <div class="card"><div class="label">Informação comum</div><div class="feature-row"><span class="number">V</span><div><h3>Características da via</h3><p>Comprimento, tipo, faixas, velocidade máxima e sinuosidade.</p></div></div><div class="feature-row"><span class="number">T</span><div><h3>Calendário</h3><p>Ano, mês, semana e codificação cíclica.</p></div></div><div class="feature-row"><span class="number">?</span><div><h3>Valores ausentes</h3><p>Imputação e indicadores explícitos.</p></div></div></div>
+        <div class="model-stack"><div class="card"><div class="label">Sem vizinhança explícita</div><div class="chips"><span class="chip">Random Forest</span><span class="chip">XGBoost</span><span class="chip">MLP</span></div></div><div class="card teal"><div class="label">Com passagem de mensagens</div><div class="chips"><span class="chip">GraphSAGE</span><span class="chip">GATv2</span></div><p class="small space"><strong>Mesmos atributos + adjacência da malha.</strong></p></div></div>
+      </div>
+      <div class="takeaway">Históricos de acidentes ficaram ausentes: não havia prova de publicação anterior à previsão.</div>
+    </main>
+    <p class="source">Fonte: relatório final, Atributos e pré-processamento. Transformações ajustadas somente no treinamento.</p>
+    <footer><span>ROAD RISK MG · MÉTODO</span><span class="page-no">07 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-8" data-duration="55" aria-label="Slide 8: protocolo">
+    <header><div class="eyebrow"><span class="section-no">07</span> Protocolo experimental</div><h2>Treinar no passado, avaliar no futuro</h2></header>
+    <main class="content">
+      <div class="timeline"><div class="card"><div class="label">Treinamento</div><div class="year">2019–2023</div><p>260 semanas</p><p class="small">Ajuste de modelos e pré-processamento.</p></div><div class="card teal"><div class="label">Validação</div><div class="year">2024</div><p>52 semanas</p><p class="small">Configurações e limiares congelados.</p></div><div class="card"><div class="label">Teste principal</div><div class="year">2025</div><p>51 semanas</p><p class="small">Sem novo ajuste.</p></div><div class="card"><div class="label">Teste adicional</div><div class="year">2026 parcial</div><p>29 semanas</p><p class="small">Mesmo modelo e mesmos limiares.</p></div></div>
+      <div class="protocol-note"><p><strong>5 sementes · 55 treinamentos</strong><br>Incluindo ablações; redes neurais com 5 épocas.</p><p><strong>AP como métrica principal</strong><br>AUROC e F1 complementares; semanas completas.</p></div>
+      <div class="grid two stats-strip"><div class="card"><div class="big">4,3 milhões</div><p class="small">de unidades segmento–semana</p></div><div class="card teal"><div class="big accent">≈ 1,4%</div><p class="small">de unidades positivas: classe rara</p></div></div>
+    </main>
+    <p class="source">Fonte: relatório final, Protocolo e Avaliação. AP = precisão média. A cobertura temporal é assumida, não comprovada.</p>
+    <footer><span>ROAD RISK MG · EXPERIMENTO</span><span class="page-no">08 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-9" data-duration="65" aria-label="Slide 9: desempenho">
+    <header><div class="eyebrow"><span class="section-no">08</span> Resultado principal</div><h2>Os modelos tabulares ficaram à frente em AP</h2></header>
+    <main class="content">
+      <div class="grid chart-layout">
+        <figure class="card chart" aria-label="AP média dos cinco modelos em 2025 e 2026 parcial">
+          <div class="legend"><span><i></i>2025</span><span><i class="second"></i>2026 parcial</span></div>
+          <div class="chart-row" data-model="xgboost"><span class="model-name">XGBoost</span><div><div class="series" data-split="test_2025" data-mean="16.75" data-std="0.18" style="--value:16.75;--sd:0.18"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">16,75</span></div><div class="series second" data-split="test_2026" data-mean="17.23" data-std="0.20" style="--value:17.23;--sd:0.20"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">17,23</span></div></div></div>
+          <div class="chart-row" data-model="mlp"><span class="model-name">MLP</span><div><div class="series" data-split="test_2025" data-mean="16.24" data-std="0.08" style="--value:16.24;--sd:0.08"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">16,24</span></div><div class="series second" data-split="test_2026" data-mean="16.53" data-std="0.14" style="--value:16.53;--sd:0.14"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">16,53</span></div></div></div>
+          <div class="chart-row" data-model="random_forest"><span class="model-name">Random Forest</span><div><div class="series" data-split="test_2025" data-mean="16.12" data-std="0.22" style="--value:16.12;--sd:0.22"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">16,12</span></div><div class="series second" data-split="test_2026" data-mean="16.58" data-std="0.26" style="--value:16.58;--sd:0.26"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">16,58</span></div></div></div>
+          <div class="chart-row" data-model="graphsage"><span class="model-name">GraphSAGE</span><div><div class="series" data-split="test_2025" data-mean="13.86" data-std="0.48" style="--value:13.86;--sd:0.48"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">13,86</span></div><div class="series second" data-split="test_2026" data-mean="13.90" data-std="0.46" style="--value:13.90;--sd:0.46"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">13,90</span></div></div></div>
+          <div class="chart-row" data-model="gatv2"><span class="model-name">GATv2</span><div><div class="series" data-split="test_2025" data-mean="10.37" data-std="0.49" style="--value:10.37;--sd:0.49"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">10,37</span></div><div class="series second" data-split="test_2026" data-mean="10.82" data-std="0.58" style="--value:10.82;--sd:0.58"><div class="track"><div class="bar"></div><div class="whisker"></div></div><span class="value">10,82</span></div></div></div>
+          <div class="chart-axis"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div><figcaption class="chart-caption">AP (%) · maior é melhor</figcaption>
+        </figure>
+        <div class="card dark result-card"><div class="label">Melhor referência</div><h3>XGBoost</h3><div><div class="big">17,23%</div><p class="small">AP em 2026 parcial</p></div><p>Nenhuma GNN superou os modelos tabulares.</p><p class="small">Em 2025, AP ≈ 11,6 vezes a prevalência.</p></div>
+      </div>
+    </main>
+    <p class="source">Fonte: resultados/metrics.csv; modelos completos, full_period. Médias de 5 sementes; hastes = 1 desvio-padrão.</p>
+    <footer><span>ROAD RISK MG · RESULTADOS</span><span class="page-no">09 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-10" data-duration="75" aria-label="Slide 10: F1 e motivo dos valores baixos">
+    <header><div class="eyebrow"><span class="section-no">09</span> F1 e desbalanceamento</div><h2>Por que o F1 fica entre 18% e 25%?</h2></header>
+    <main class="content">
+      <div class="grid wide-left">
+        <div class="card table-card">
+          <table class="f1-table" aria-label="F1 da classe positiva por modelo e período">
+            <thead><tr><th>F1 positivo (%)</th><th>2025</th><th>2026 parcial</th></tr></thead>
+            <tbody>
+              <tr data-model="random_forest"><td>Random Forest</td><td data-split="test_2025" data-mean="24.86" data-std="0.12">24,86 ± 0,12</td><td data-split="test_2026" data-mean="24.77" data-std="0.13">24,77 ± 0,13</td></tr>
+              <tr data-model="xgboost"><td>XGBoost</td><td data-split="test_2025" data-mean="24.73" data-std="0.42">24,73 ± 0,42</td><td data-split="test_2026" data-mean="24.84" data-std="0.21">24,84 ± 0,21</td></tr>
+              <tr data-model="mlp"><td>MLP</td><td data-split="test_2025" data-mean="24.60" data-std="0.13">24,60 ± 0,13</td><td data-split="test_2026" data-mean="24.71" data-std="0.23">24,71 ± 0,23</td></tr>
+              <tr data-model="graphsage"><td>GraphSAGE</td><td data-split="test_2025" data-mean="22.14" data-std="0.34">22,14 ± 0,34</td><td data-split="test_2026" data-mean="22.68" data-std="0.37">22,68 ± 0,37</td></tr>
+              <tr data-model="gatv2"><td>GATv2</td><td data-split="test_2025" data-mean="18.25" data-std="0.74">18,25 ± 0,74</td><td data-split="test_2026" data-mean="19.05" data-std="0.93">19,05 ± 0,93</td></tr>
+            </tbody>
+          </table>
+          <p class="small">Média ± desvio-padrão (5 sementes). F1 positivo, não macro-F1.</p>
+        </div>
+        <div class="card teal f1-explanation">
+          <div class="formula">F1 = 2 · P · R / (P + R)</div>
+          <h3>Classe rara: ≈ 1,4% positivos</h3><p>Mesmo poucos falsos alarmes entre muitos negativos podem limitar a precisão.</p>
+          <h3>Erros nos dois sentidos</h3><p>Precisão ≈ 15–21% e revocação ≈ 24–38%: falsos positivos e acidentes não detectados.</p>
+          <h3>F1 ignora negativos corretos</h3><p>Combina precisão (P) e revocação (R). Verdadeiros negativos não entram.</p>
+        </div>
+      </div>
+      <div class="takeaway">AUROC alta não garante F1 alto: o F1 depende dos erros no limiar escolhido em 2024 e congelado nos testes.</div>
+    </main>
+    <p class="source">Fonte: resultados/metrics.csv e código de avaliação. Diagnóstico pelos erros observados; desbalanceamento não determina sozinho um F1 baixo.</p>
+    <footer><span>ROAD RISK MG · RESULTADOS E DISCUSSÃO</span><span class="page-no">10 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-11" data-duration="60" aria-label="Slide 11: ablações">
+    <header><div class="eyebrow"><span class="section-no">10</span> Ablações</div><h2>A topologia não ajuda automaticamente</h2></header>
+    <main class="content">
+      <div class="grid wide-left">
+        <div class="card table-card"><table aria-label="AP das ablações em 2025"><thead><tr><th>AP em 2025 (%)</th><th>GraphSAGE</th><th>GATv2</th></tr></thead><tbody><tr class="full-row" data-variant="full"><td>Completo</td><td data-model="graphsage">13,86</td><td data-model="gatv2">10,37</td></tr><tr data-variant="without_topology"><td>Sem topologia</td><td data-model="graphsage">13,26</td><td data-model="gatv2">13,70</td></tr><tr data-variant="without_road"><td>Sem atributos de via</td><td data-model="graphsage">1,51</td><td data-model="gatv2">1,49</td></tr><tr data-variant="without_temporal"><td>Sem atributos temporais</td><td data-model="graphsage">14,36</td><td data-model="gatv2">10,87</td></tr></tbody></table><p class="small">Sem topologia = sem mensagens dos vizinhos, mantendo a transformação do próprio nó.</p></div>
+        <div class="deltas"><div class="card teal"><div class="label">GraphSAGE · topologia</div><div class="big accent">+0,60 p.p.</div><p class="delta-caption">Pequeno ganho no modelo completo.</p></div><div class="card"><div class="label">GATv2 · topologia</div><div class="big">−3,33 p.p.</div><p class="delta-caption">Perda no modelo completo.</p></div><p class="small">Diferença: completo menos sem topologia.</p></div>
+      </div>
+      <div class="takeaway">Os atributos da via foram a principal fonte de sinal preditivo nas ablações.</div>
+    </main>
+    <p class="source">Fonte: resultados/ablations.csv. Diferenças descritivas; não demonstram causalidade nem significância estatística.</p>
+    <footer><span>ROAD RISK MG · RESULTADOS</span><span class="page-no">11 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-12" data-duration="40" aria-label="Slide 12: interpretação">
+    <header><div class="eyebrow"><span class="section-no">11</span> Interpretação prática</div><h2>Boa ordenação não significa alerta confiável</h2></header>
+    <main class="content">
+      <div class="grid two">
+        <div><p class="label">XGBoost · teste de 2025 · limiar congelado</p><div class="grid two metric-pair space"><div class="card teal"><div class="big accent">19,39%</div><h3>Precisão</h3><p class="small">Positivos entre as unidades sinalizadas.</p></div><div class="card"><div class="big">35,74%</div><h3>Revocação</h3><p class="small">Parcela dos positivos identificados.</p></div></div></div>
+        <div class="card"><h3>Entre unidades sinalizadas</h3><div class="signals" aria-label="Ilustração: um positivo e quatro falsos positivos"><span class="signal positive">✓</span><span class="signal">×</span><span class="signal">×</span><span class="signal">×</span><span class="signal">×</span></div><div class="signal-legend"><strong class="accent">≈ 1 positivo</strong><span>para 4 falsos positivos</span></div><p class="small">E a maioria das unidades positivas não foi identificada.</p></div>
+      </div>
+      <div class="takeaway">Suporte analítico, não um sistema operacional validado nem uma taxa de risco ajustada ao tráfego.</div>
+    </main>
+    <p class="source">Fonte: relatório final, Desempenho. Valores médios entre 5 sementes; ícones ilustrativos.</p>
+    <footer><span>ROAD RISK MG · DISCUSSÃO</span><span class="page-no">12 / 14</span></footer>
+  </section>
+
+  <section class="slide" id="slide-13" data-duration="55" aria-label="Slide 13: limitações e reprodução">
+    <header><div class="eyebrow"><span class="section-no">12</span> Limitações e reprodução</div><h2>O alcance da conclusão tem limites</h2></header>
+    <main class="content">
+      <div class="grid wide-left">
+        <div class="list limits"><div class="list-row"><span class="number">1</span><p>Cobertura dos arquivos <strong>assumida</strong>, não comprovada.</p></div><div class="list-row"><span class="number">2</span><p>Malha estática de 2018; sem volume de tráfego para ajustar a exposição.</p></div><div class="list-row"><span class="number">3</span><p>Históricos indisponíveis; redes treinadas por apenas <strong>5 épocas</strong>.</p></div><div class="list-row"><span class="number">4</span><p>Mesma geografia nos testes; sem avaliação em outro estado.</p></div></div>
+        <div class="card dark replay"><h3>Reprodução local</h3><p>Dados reconstruídos e inferências repetidas.</p><div><div class="huge">0,0 p.p.</div><p class="small">diferença máxima nas métricas</p></div><div class="chips"><span class="pill">Sem rede</span><span class="pill">Sem treinamento</span></div><p class="small">Mesmo ambiente de bibliotecas; não é replicação externa independente.</p></div>
+      </div>
+    </main>
+    <p class="source">Fonte: relatório final, Limitações e reprodução. Resultado condicionado a esta base e a este orçamento experimental.</p>
+    <footer><span>ROAD RISK MG · VALIDADE</span><span class="page-no">13 / 14</span></footer>
+  </section>
+
+  <section class="slide dark-slide" id="slide-14" data-duration="55" aria-label="Slide 14: conclusão">
+    <header><div class="eyebrow"><span class="section-no">13</span> Conclusão</div><h2>Grafo não garantiu vantagem preditiva</h2></header>
+    <main class="content">
+      <div class="grid three conclusion-cards"><div class="card"><div class="label">01 · Melhor referência</div><h3>XGBoost liderou em AP</h3><p>16,75% em 2025.<br>17,23% em 2026 parcial.</p></div><div class="card"><div class="label">02 · Efeito estrutural</div><h3>Topologia depende da arquitetura</h3><p>Pequeno ganho no GraphSAGE; perda no GATv2.</p></div><div class="card"><div class="label">03 · Contribuição</div><h3>Comparação brasileira auditável</h3><p>Avaliação temporal, ablações e reprodução local.</p></div></div>
+      <div class="next-steps"><div class="label">Próximos passos</div><p>Comprovar cobertura<br>e disponibilidade.</p><p>Incorporar tráfego<br>e mudanças da malha.</p><p>Avaliar novas configurações<br>em outro protocolo.</p></div>
+      <p class="closing">Obrigado. <strong>Perguntas?</strong></p>
+    </main>
+    <p class="source">Fonte: relatório final, Conclusão. Novos ajustes devem reconhecer que os testes atuais já foram observados.</p>
+    <footer><span>ROAD RISK MG · CONCLUSÃO</span><span class="page-no">14 / 14</span></footer>
+  </section>
+
+  <section class="slide references" id="slide-15" aria-label="Referências de apoio">
+    <header><div class="eyebrow"><span class="section-no">+</span> Material de apoio</div><h2>Referências para consulta</h2></header>
+    <main class="content">
+      <div class="reference"><strong>Araújo (2022)</strong><p>Regras de associação entre veículos e acidentes em rodovias federais.<br><a href="https://repositorio.ufmg.br/items/829406e3-546d-438c-88ce-d22fc18bba88">Dissertação · UFMG</a></p></div>
+      <div class="reference"><strong>Amorim et al. (2023)</strong><p>A Machine Learning Approach for Classifying Road Accident Hotspots.<br><a href="https://www.mdpi.com/2220-9964/12/6/227">ISPRS International Journal of Geo-Information</a></p></div>
+      <div class="reference"><strong>Nippani et al. (2023)</strong><p>Graph Neural Networks for Road Safety Modeling.<br><a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/a365be0950259c9624edfb4d26eabd46-Abstract-Datasets_and_Benchmarks.html">NeurIPS · Datasets and Benchmarks</a></p></div>
+      <div class="reference"><strong>Zhang et al. (2026)</strong><p>Learning Multimodal Embeddings for Traffic Accident Prediction and Causal Estimation.<br><a href="https://arxiv.org/abs/2512.02920">KDD / arXiv</a></p></div>
+      <div class="reference"><strong>Gao et al. (2024)</strong><p>Uncertainty-Aware Probabilistic Graph Neural Networks for Road-Level Traffic Accident Prediction.<br><a href="https://arxiv.org/abs/2309.05072">arXiv</a></p></div>
+      <div class="reference"><strong>Saito e Rehmsmeier (2015)</strong><p>Precision–Recall em classificação desbalanceada.<br><a href="https://doi.org/10.1371/journal.pone.0118432">PLOS ONE</a></p></div>
+    </main>
+    <p class="source">Referências e anos conforme o relatório final. Método e conclusões sintetizados de docs/trab_final.tex.</p>
+    <footer><span>ROAD RISK MG · REFERÊNCIAS</span><span class="page-no">APOIO</span></footer>
+  </section>
+</body>
+</html>
