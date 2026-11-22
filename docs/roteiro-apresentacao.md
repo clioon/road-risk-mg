@@ -1,8 +1,8 @@
 # Roteiro de apresentação do código-fonte — Road Risk MG
 
-**Duração: 5min30s.** O [vídeo sincronizado (MP4, sem áudio)](road-risk-mg-codigo-fonte.mp4) troca de trecho a cada 11 segundos, no início de cada bloco abaixo. Leiam apenas os parágrafos de fala. Comecem na marca inicial; se terminarem cedo, façam uma pausa até o próximo corte.
+**Duração: 5min30s.** O [vídeo-guia de gravação (MP4, sem áudio)](road-risk-mg-codigo-fonte.mp4) troca de trecho a cada 11 segundos, no início de cada bloco abaixo. Leiam apenas os parágrafos de fala. Comecem na marca inicial; se terminarem cedo, façam uma pausa até o próximo corte.
 
-Na edição, mantenham o vídeo em velocidade normal e sobreponham a câmera na área vazia do canto inferior direito. Cada pessoa grava 1min50s de fala.
+Na edição para entrega, usem o [vídeo limpo (MP4, sem marcações)](road-risk-mg-apresentacao-final.mp4). Ele mantém os mesmos cortes do vídeo-guia. Mantenham a velocidade normal e sobreponham a câmera na área vazia do canto inferior direito. Cada pessoa grava 1min50s de fala.
 
 ## João — 00:00–01:50
 
