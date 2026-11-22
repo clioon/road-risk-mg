@@ -586,15 +586,15 @@ malha histórica.
 \centering
 \begin{minipage}[c]{0.38\textwidth}
 \centering
-\includegraphics[width=\linewidth]{../my-project/artifacts/reports/research-progress-20260922-v2/historical-federal-map.png}
+\includegraphics[width=\linewidth]{imagens/historical-federal-map.png}
 \end{minipage}\hfill
 \begin{minipage}[c]{0.59\textwidth}
 \centering
-\includegraphics[width=\linewidth]{../my-project/artifacts/reports/research-progress-20260922-v2/federal-snapping.png}
+\includegraphics[width=\linewidth]{imagens/federal-snapping.png}
 \end{minipage}
 \caption{Malha federal histórica de Minas Gerais e percentual anual de
-ocorrências associadas em até 500 metros. Fonte: artefatos diagnósticos
-do projeto.}
+ocorrências associadas em até 500 metros. Fonte: malha e associações
+espaciais do conjunto de dados preparado.}
 \label{fig:malha-associacao}
 \end{figure}
 
@@ -663,7 +663,7 @@ $10{,}82\pm0{,}58$ & $87{,}55\pm0{,}35$ & $19{,}05\pm0{,}93$ \\
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.92\textwidth]{../my-project/artifacts/reports/confirmatory/auprc-full_period.png}
+\includegraphics[width=0.92\textwidth]{imagens/auprc-full_period.png}
 \caption{AP dos cinco modelos nos períodos completos de avaliação. As
 barras de erro representam um desvio-padrão entre sementes. O teste de
 2026 é parcial.}
@@ -683,10 +683,11 @@ AUROC acima de 90\% nos quatro melhores modelos pode parecer elevada,
 mas não elimina a dificuldade da classe rara. Mesmo com ordenação útil,
 as precisões próximas de 20\% indicam aproximadamente quatro falsos
 positivos para cada verdadeiro positivo entre as unidades sinalizadas
-nos limiares congelados. As revocações entre 29\% e 38\% indicam que a
-maioria das unidades positivas não foi identificada. Acurácia seria
-enganosa: sempre prever ausência já produziria 98,55\% em 2025 e
-98,58\% em 2026, com revocação zero.
+nos limiares congelados. As revocações médias variaram de 23,87\% a
+37,85\% entre os cinco modelos nos dois testes, indicando que cada
+modelo, isoladamente, deixou de identificar a maioria das unidades
+positivas. Acurácia seria enganosa: sempre prever ausência já produziria
+98,55\% em 2025 e 98,58\% em 2026, com revocação zero.
 
 O teste de 2026 reutilizou os modelos sem ajuste e apresentou ranking
 semelhante ao de 2025. Na comparação sazonal restrita às mesmas semanas
@@ -707,11 +708,12 @@ de um pequeno sinal topológico para o GraphSAGE neste protocolo.
 No GATv2 ocorreu o inverso: a variante sem topologia atingiu AP de
 13,70\%, contra 10,37\% do modelo completo, diferença de
 $-3,33\pp$. AUROC, F1, precisão e revocação também melhoraram sem
-mensagens de vizinhos. A atenção não conseguiu filtrar de forma útil a
-informação agregada sob cinco épocas e a configuração adotada. Isso
-pode refletir otimização insuficiente, heterogeneidade das vizinhanças,
-ruído estrutural ou ausência de atributos que tornem a relação entre
-segmentos informativa. Os dados não permitem escolher uma causa.
+mensagens de vizinhos. Sob cinco épocas e a configuração adotada, a
+agregação por atenção esteve associada a menor desempenho. Entre as
+possíveis explicações estão otimização insuficiente, heterogeneidade
+das vizinhanças, ruído estrutural e ausência de atributos que tornem a
+relação entre segmentos informativa. Essas hipóteses não foram isoladas
+neste experimento.
 
 \begin{table}[htbp]
 \centering
@@ -757,7 +759,7 @@ ajuste entre os modelos completos: 75,2 segundos. GraphSAGE treinou em
 118,0 segundos, enquanto MLP e GATv2 demandaram 272,0 e 450,8 segundos.
 Random Forest ocupou o maior artefato de modelo (31,78 MiB), embora os
 picos de memória total tenham sido dominados pela carga dos dados e das
-bibliotecas, entre 5,7 e 6,3 GiB.
+bibliotecas, entre 5,7 e 6,2 GiB.
 
 \begin{table}[htbp]
 \centering

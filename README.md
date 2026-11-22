@@ -4,7 +4,7 @@
 
 Projeto de pesquisa para prever a ocorrência semanal de acidentes em segmentos de rodovias federais de Minas Gerais, usando dados da PRF e a malha do OpenStreetMap. O fluxo inclui tratamento dos dados, construção do grafo, treinamento, avaliação e geração de tabelas, gráficos e relatórios.
 
-São comparados Random Forest, XGBoost, MLP, GraphSAGE e GATv2, com treino em 2019–2023, validação em 2024 e testes em 2025 e janeiro–julho de 2026. O método, os resultados e as limitações estão no [artigo](docs/artigo.pdf) ([fonte LaTeX](docs/artigo.tex)).
+São comparados Random Forest, XGBoost, MLP, GraphSAGE e GATv2, com treino em 2019–2023, validação em 2024 e testes em 2025 e janeiro–julho de 2026. O método, os resultados e as limitações estão no [relatório final oficial](docs/trab_final.tex).
 
 Os resultados dependem de cobertura temporal assumida, não comprovada, e de uma malha estática de 2018.
 
@@ -18,7 +18,9 @@ codigo/
   dvc.yaml               Pipeline: preparação → treinamento → relatório
   pyproject.toml         Dependências e comando road-risk
   uv.lock                Versões das dependências do experimento
-docs/                    Artigo em LaTeX e PDF
+docs/
+  trab_final.tex         Relatório final oficial em LaTeX
+  imagens/               Imagens do relatório
 resultados/              Tabelas, gráficos e recibos do experimento histórico
 reproducao/
   confirmatory.tar.gz    Pacote histórico com código, dados e modelos treinados
