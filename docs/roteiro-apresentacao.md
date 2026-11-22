@@ -1,191 +1,101 @@
 # Roteiro de apresentação do código-fonte — Road Risk MG
 
-**Duração: 5min30s.** O [vídeo-guia de gravação (MP4, sem áudio)](road-risk-mg-codigo-fonte.mp4) troca de trecho a cada 11 segundos, no início de cada bloco abaixo. Leiam apenas os parágrafos de fala. Comecem na marca inicial; se terminarem cedo, façam uma pausa até o próximo corte.
+**Duração: 5min30s.** O [vídeo-guia de gravação](road-risk-mg-codigo-fonte.mp4) mostra o relógio e a próxima troca de assunto. Cada bloco abaixo dura **22 segundos**. Leiam só o parágrafo depois de **Na tela**. Comecem na marca inicial e, se terminarem cedo, façam uma pausa até o próximo corte.
 
-Na edição para entrega, usem o [vídeo limpo (MP4, sem marcações)](road-risk-mg-apresentacao-final.mp4). Ele mantém os mesmos cortes do vídeo-guia. Mantenham a velocidade normal e sobreponham a câmera na área vazia do canto inferior direito. Cada pessoa grava 1min50s de fala.
+Na edição, troquem o guia pelo [vídeo limpo para entrega](road-risk-mg-apresentacao-final.mp4) sem mudar o início nem a velocidade. Os dois MP4 são silenciosos e têm os mesmos cortes. Sobreponham a câmera no canto inferior direito. Cada pessoa tem 1min50s.
 
 ## João — 00:00–01:50
 
-### 00:00–00:11 — Ponto de entrada
+### 00:00–00:22 — Mapa do repositório
 
-**Na tela:** [`pyproject.toml`, linhas 38–39](../codigo/pyproject.toml#L38-L39) — O comando aponta para a função `main`.
+**Na tela:** [Raiz do repositório](../) — As pastas separam o programa, a documentação, os resultados e o pacote de reprodução.
 
-Olá! Somos João, Giovanni e Lion. O comando road-risk começa aqui: o arquivo aponta para a função principal da interface.
+Olá! Somos João, Giovanni e Lion. O Road Risk MG estima em quais trechos das rodovias federais de Minas Gerais pode haver um acidente registrado em uma semana. Antes de abrir as funções, vamos ver onde fica cada parte do programa.
 
-### 00:11–00:22 — Grupos de comandos
+### 00:22–00:44 — Dentro da pasta de código
 
-**Na tela:** [`cli.py`, linhas 38–46](../codigo/src/road_accidents/cli.py#L38-L46) — O Typer registra os quatro grupos.
+**Na tela:** [`codigo/`](../codigo/) — Código-fonte, configurações, testes, scripts de apoio e ordem de execução.
 
-No Typer, registramos quatro grupos: fontes, conjunto de dados, experimentos e pipeline. Cada grupo reúne comandos de uma etapa.
+Na pasta código, a parte chamada src guarda o programa. As configurações definem fontes e parâmetros, e os testes conferem o comportamento das etapas. Também há um script de apoio para checar dependências. O arquivo do DVC encadeia preparação, treino e relatório.
 
-### 00:22–00:33 — Preparação pelo DVC
+### 00:44–01:06 — Dados, mapa e atributos
 
-**Na tela:** [`dvc.yaml`, linhas 3–10](../codigo/dvc.yaml#L3-L10) — A etapa `prepare` recebe a configuração e os manifestos.
+**Na tela:** [`src/road_accidents/`](../codigo/src/road_accidents/) — `data/`, `graph/` e `features/` transformam as fontes em tabelas por semana.
 
-O DVC encadeia as etapas. Na primeira, o módulo de dados recebe a configuração e os manifestos de fontes e cobertura.
+No código-fonte, a pasta de dados prepara os registros da Polícia Rodoviária Federal e a malha do OpenStreetMap. A de grafos organiza os trechos e suas ligações. A de atributos monta as tabelas semanais: o que o modelo recebe e a resposta que precisa prever.
 
-### 00:33–00:44 — Orquestração dos experimentos
+### 01:06–01:28 — Do treino ao relatório
 
-**Na tela:** [`pipeline.py`, linhas 150–166](../codigo/src/road_accidents/pipeline.py#L150-L166) — A segunda etapa congela o experimento; a terceira avalia o pacote.
+**Na tela:** [`src/road_accidents/`](../codigo/src/road_accidents/) — `models/`, `experiments/`, `evaluation/` e `reporting/` cobrem o restante do fluxo.
 
-A etapa de experimento usa a base preparada para treinar e congelar o pacote. A etapa de relatório avalia esse pacote.
+A pasta de modelos reúne as implementações que fazem as previsões. A de experimentos coordena o treino e fixa as versões escolhidas. A avaliação aplica esses modelos aos dados de teste e calcula as métricas. A pasta de relatórios transforma essas saídas em tabelas e gráficos.
 
-### 00:44–00:55 — Montagem da base
+### 01:28–01:50 — Onde consultar as saídas
 
-**Na tela:** [`data/pipeline.py`, linhas 140–149](../codigo/src/road_accidents/data/pipeline.py#L140-L149) — Rede, segmentos, grafo e calendário são preparados antes das tabelas.
+**Na tela:** [Raiz do repositório](../) — `docs/`, `resultados/` e `reproducao/` separam documentação, saídas e material arquivado.
 
-Esta função carrega a malha, cria os segmentos e monta a vizinhança. Depois, usa a cobertura para construir o calendário.
-
-### 00:55–01:06 — Alinhamento das tabelas
-
-**Na tela:** [`data/pipeline.py`, linhas 175–182](../codigo/src/road_accidents/data/pipeline.py#L175-L182) — Atributos e rótulos precisam ter as mesmas chaves, na mesma ordem.
-
-Atributos e rótulos saem de funções separadas. Se as chaves de segmento e semana não estiverem na mesma ordem, a preparação para.
-
-### 01:06–01:17 — Curadoria da PRF
-
-**Na tela:** [`prf.py`, linhas 380–396](../codigo/src/road_accidents/data/prf.py#L380-L396) — A curadoria anota duplicatas e ocorrências fora do recorte.
-
-Na curadoria da PRF, a função normaliza o identificador e marca dois tipos de registro inválido: duplicatas e ocorrências de outros estados.
-
-### 01:17–01:28 — Validação das coordenadas
-
-**Na tela:** [`prf.py`, linhas 409–420](../codigo/src/road_accidents/data/prf.py#L409-L420) — Coordenadas inválidas são sinalizadas; pontos válidos passam pelo teste do polígono.
-
-A função marca coordenadas ausentes, zeradas ou fora da faixa. Quando consegue criar um ponto, verifica se ele fica em Minas Gerais.
-
-### 01:28–01:39 — Leitura da malha histórica
-
-**Na tela:** [`osm.py`, linhas 416–425](../codigo/src/road_accidents/data/osm.py#L416-L425) — O carregador confere o hash antes de identificar as vias federais.
-
-Na leitura do OpenStreetMap, a função confere o hash do arquivo, valida a extração histórica e identifica as referências das rodovias federais.
-
-### 01:39–01:50 — Identidade de cada trecho
-
-**Na tela:** [`segments.py`, linhas 72–76](../codigo/src/road_accidents/graph/segments.py#L72-L76) — A chave usa as pontas ordenadas e a geometria normalizada.
-
-Só entram trechos inteiros no estado. A chave combina pontas ordenadas e geometria normalizada, unificando os dois sentidos quando a geometria é igual.
+A pasta docs reúne a documentação. Resultados guarda as tabelas e os gráficos já gerados, e reprodução contém o pacote para repetir a avaliação com o material arquivado. Com esse mapa em mente, o Giovanni vai mostrar como um registro de acidente vira uma linha na tabela.
 
 ## Giovanni — 01:50–03:40
 
-### 01:50–02:01 — Vizinhança no grafo
+### 01:50–02:12 — Como os trechos se conectam
 
-**Na tela:** [`adjacency.py`, linhas 23–36](../codigo/src/road_accidents/graph/adjacency.py#L23-L36) — Os pares de vizinhos vêm de junções compartilhadas.
+**Na tela:** [`adjacency.py`, linhas 23–36](../codigo/src/road_accidents/graph/adjacency.py#L23-L36) — Só trechos com uma junção em comum viram vizinhos.
 
-Cada trecho é um nó. O código forma pares em junções compartilhadas: cruzar no mapa, sem uma junção, não cria ligação.
+No nosso grafo, cada trecho de rodovia é um nó. Esta função agrupa os trechos que compartilham uma junção e forma pares de vizinhos. Por exemplo, um viaduto que passa por cima de outra via, sem ligação entre elas, não cria um par.
 
-### 02:01–02:12 — Acidente e trecho mais próximo
+### 02:12–02:34 — Do ponto do acidente ao trecho
 
-**Na tela:** [`matching.py`, linhas 32–49](../codigo/src/road_accidents/graph/matching.py#L32-L49) — O candidato mais próximo só é aceito dentro do limite de distância.
+**Na tela:** [`matching.py`, linhas 32–49](../codigo/src/road_accidents/graph/matching.py#L32-L49) — O trecho mais próximo só é aceito até 500 metros.
 
-A função ordena os candidatos por distância e identificador. Só aceita o trecho mais próximo se estiver a até quinhentos metros.
+O registro do acidente traz uma localização, mas o modelo trabalha com trechos. Aqui, o código escolhe o trecho mais próximo e só aceita a associação se a distância for de até quinhentos metros. Acima desse limite, o ponto fica sem trecho associado.
 
-### 02:12–02:23 — Semanas elegíveis
+### 02:34–02:56 — Uma linha por trecho e semana
 
-**Na tela:** [`weekly.py`, linhas 37–47](../codigo/src/road_accidents/features/weekly.py#L37-L47) — O calendário exclui semanas incompletas ou fora da cobertura declarada.
+**Na tela:** [`weekly.py`, linhas 119–130](../codigo/src/road_accidents/features/weekly.py#L119-L130) — A contagem vira um rótulo binário: houve ou não registro.
 
-O calendário avança de sete em sete dias. Uma semana fica fora se cruza partições ou não tem cobertura declarada completa.
+Para cada semana incluída, esta consulta cria uma linha por trecho. Se dois acidentes foram registrados, a contagem é dois, mas o rótulo é um. Sem registro, o rótulo é zero. Esse zero não prova que não houve acidente: depende da cobertura assumida.
 
-### 02:23–02:34 — Rótulo por trecho e semana
+### 02:56–03:18 — O que o modelo pode saber
 
-**Na tela:** [`weekly.py`, linhas 119–131](../codigo/src/road_accidents/features/weekly.py#L119-L131) — O SQL cruza segmentos com semanas e converte a contagem em rótulo binário.
+**Na tela:** [`temporal.py`, linhas 69–77](../codigo/src/road_accidents/features/temporal.py#L69-L77) — A contagem histórica fica ausente se a fonte não comprovar cobertura e publicação prévia.
 
-O SQL combina cada segmento com cada semana elegível. O rótulo vale um se houve acidente registrado e zero caso contrário.
+Comprimento da via e semana do ano já são conhecidos. O histórico de acidentes é diferente: precisa ter cobertura comprovada e estar disponível antes da previsão. Se não há essa comprovação, o código deixa o campo como dado ausente, em vez de preencher com zero.
 
-### 02:34–02:45 — Atributos da via e do calendário
+### 03:18–03:40 — Ajuste apenas com dados de treino
 
-**Na tela:** [`temporal.py`, linhas 123–138](../codigo/src/road_accidents/features/temporal.py#L123-L138) — A função junta os atributos fixos aos campos que variam por semana.
+**Na tela:** [`training.py`, linhas 213–225](../codigo/src/road_accidents/experiments/training.py#L213-L225) — O `fit` recebe o treino; a validação só passa pelo `transform`.
 
-A função pega comprimento, tipo de via e faixas. Para cada semana, junta os campos do calendário e tenta recuperar o histórico.
-
-### 02:45–02:56 — Histórico sem informação futura
-
-**Na tela:** [`temporal.py`, linhas 69–77](../codigo/src/road_accidents/features/temporal.py#L69-L77) — Sem fonte disponível antes da previsão, a contagem fica ausente.
-
-Sem comprovação de cobertura e publicação prévia, a contagem fica ausente, não zero. Assim, o código não usa informação futura.
-
-### 02:56–03:07 — Ajuste apenas no treino
-
-**Na tela:** [`preprocessing.py`, linhas 27–38](../codigo/src/road_accidents/features/preprocessing.py#L27-L38) — O pré-processador recusa ajuste fora do período de treino.
-
-O pré-processador só aceita datas de treino no ajuste. Assim, validação e teste não influenciam as estatísticas usadas na transformação.
-
-### 03:07–03:18 — Mediana e padronização
-
-**Na tela:** [`preprocessing.py`, linhas 44–57](../codigo/src/road_accidents/features/preprocessing.py#L44-L57) — As colunas numéricas passam pelo imputador e pelo padronizador.
-
-Nas colunas numéricas, a transformação preenche ausências com a mediana, sinaliza os dados faltantes e padroniza a escala de cada coluna.
-
-### 03:18–03:29 — Ordem dos nós por semana
-
-**Na tela:** [`graph/dataset.py`, linhas 44–59](../codigo/src/road_accidents/graph/dataset.py#L44-L59) — Toda semana é alinhada à mesma lista de nós.
-
-Para as redes de grafos, agrupamos as linhas por semana. Cada grupo precisa ter todos os segmentos; o código os ordena.
-
-### 03:29–03:40 — Tensor de arestas
-
-**Na tela:** [`graph/dataset.py`, linhas 68–85](../codigo/src/road_accidents/graph/dataset.py#L68-L85) — A variante sem topologia recebe um tensor vazio, mas mantém os atributos.
-
-O tensor guarda as ligações nos dois sentidos. Na variante sem topologia, ele fica vazio; os atributos dos nós são mantidos.
+Antes de treinar, precisamos preparar as colunas. Repare que a função de ajuste recebe só os dados de treino. A validação reaproveita a transformação sem recalcular valores como a mediana. Com as colunas preparadas, o Lion vai mostrar como os modelos usam esses dados.
 
 ## Lion — 03:40–05:30
 
-### 03:40–03:51 — Modelos tabulares
+### 03:40–04:02 — Modelos que recebem a tabela
 
-**Na tela:** [`baselines.py`, linhas 33–51](../codigo/src/road_accidents/models/baselines.py#L33-L51) — O módulo encaminha a matriz para Random Forest, XGBoost ou MLP.
+**Na tela:** [`baselines.py`, linhas 33–51](../codigo/src/road_accidents/models/baselines.py#L33-L51) — Random Forest, XGBoost e MLP recebem atributos sem a lista de vizinhos.
 
-O caminho tabular recebe uma matriz. A função usa Random Forest ou XGBoost ou encaminha essa matriz para a rede MLP.
+No caminho tabular, cada linha descreve um trecho em uma semana. A função escolhe qual modelo recebe essa tabela: Random Forest, XGBoost ou MLP. Nenhum deles recebe a lista de vizinhos. Essa lista entra no outro caminho, o dos modelos de grafo.
 
-### 03:51–04:02 — Convolução no grafo
+### 04:02–04:24 — Como os vizinhos entram no modelo
 
-**Na tela:** [`graphsage.py`, linhas 19–25](../codigo/src/road_accidents/models/graphsage.py#L19-L25) — As duas camadas recebem os atributos e as conexões.
+**Na tela:** [`graphsage.py`, linhas 19–25](../codigo/src/road_accidents/models/graphsage.py#L19-L25) — As camadas combinam os atributos do trecho com informações da vizinhança.
 
-No GraphSAGE, as duas camadas recebem atributos e arestas. Elas agregam informações dos vizinhos e devolvem um escore bruto por segmento.
+Neste exemplo, o GraphSAGE recebe duas entradas: as características dos trechos e a lista de conexões. As camadas combinam a informação de cada trecho com a dos vizinhos. No fim, sai um valor por trecho, que depois é convertido em uma pontuação.
 
-### 04:02–04:13 — Limiar na validação
+### 04:24–04:46 — Da pontuação à decisão
 
-**Na tela:** [`training.py`, linhas 265–278](../codigo/src/road_accidents/experiments/training.py#L265-L278) — Os escores de validação determinam o ponto de corte.
+**Na tela:** [`metrics.py`, linhas 39–49](../codigo/src/road_accidents/evaluation/metrics.py#L39-L49) — A função escolhe o ponto de corte com o maior F1.
 
-A rotina ajusta o modelo no treino e calcula escores na validação. O ponto de corte é escolhido ali, nunca no teste.
+A previsão começa como uma pontuação. Para decidir quais trechos sinalizar, a função testa vários pontos de corte na validação. Ela escolhe o corte com maior F1, uma medida que combina a proporção de alertas corretos com a proporção de casos encontrados.
 
-### 04:13–04:24 — Congelamento do experimento
+### 04:46–05:08 — Teste sem mudar o modelo
 
-**Na tela:** [`freeze.py`, linhas 131–147](../codigo/src/road_accidents/experiments/freeze.py#L131-L147) — O manifesto liga as execuções escolhidas aos hashes dos artefatos.
+**Na tela:** [`runner.py`, linhas 164–179](../codigo/src/road_accidents/evaluation/runner.py#L164-L179) — O avaliador reaproveita o modelo e o corte já escolhidos.
 
-O manifesto registra as execuções escolhidas e os hashes dos arquivos. Assim, dá para detectar arquivos alterados depois do congelamento.
+O teste usa o modelo salvo. Aqui, o programa alinha as previsões e as respostas esperadas pelo trecho e pela semana. Depois compara cada pontuação com o corte que veio da validação. O código não recalcula esse corte nem treina novamente no teste.
 
-### 04:24–04:35 — Inferência no teste
+### 05:08–05:30 — Como repetir a avaliação
 
-**Na tela:** [`runner.py`, linhas 164–179](../codigo/src/road_accidents/evaluation/runner.py#L164-L179) — A avaliação usa o modelo e o limiar já salvos.
+**Na tela:** [`reproduce.py`, linhas 349–361](../codigo/src/road_accidents/reporting/reproduce.py#L349-L361) — A reprodução compara uma nova avaliação com as métricas arquivadas.
 
-No teste, o avaliador chama o modelo salvo, junta os rótulos pelas chaves e reaplica o ponto de corte congelado.
-
-### 04:35–04:46 — Cálculo das métricas
-
-**Na tela:** [`metrics.py`, linhas 57–69](../codigo/src/road_accidents/evaluation/metrics.py#L57-L69) — A precisão média usa escores; o F1 usa decisões binárias.
-
-A precisão média usa os escores. Após o corte, verdadeiros positivos, falsos positivos e falsos negativos entram no cálculo do F1.
-
-### 04:46–04:57 — Escrita das tabelas
-
-**Na tela:** [`tables.py`, linhas 340–351](../codigo/src/road_accidents/reporting/tables.py#L340-L351) — Métricas, execuções, custos, populações e ablações vão para arquivos distintos.
-
-O relatório separa as métricas agregadas das execuções individuais. Também grava tabelas com as populações, as ablações e os custos.
-
-### 04:57–05:08 — Inventário do pacote
-
-**Na tela:** [`packaging.py`, linhas 257–266](../codigo/src/road_accidents/reporting/packaging.py#L257-L266) — Cada componente tem caminho, tamanho e hash registrados.
-
-No empacotamento, cada entrada registra caminho, tamanho e hash. Assim, podemos conferir se os arquivos recebidos correspondem ao inventário.
-
-### 05:08–05:19 — Reconstrução do conjunto
-
-**Na tela:** [`reproduce.py`, linhas 322–339](../codigo/src/road_accidents/reporting/reproduce.py#L322-L339) — A reprodução refaz o conjunto e confere a versão reconstruída.
-
-Na reprodução, as fontes arquivadas voltam para a preparação. O programa valida a base reconstruída e compara a assinatura dos dados de desenvolvimento.
-
-### 05:19–05:30 — Repetição da inferência
-
-**Na tela:** [`reproduce.py`, linhas 349–361](../codigo/src/road_accidents/reporting/reproduce.py#L349-L361) — O mesmo pacote volta à avaliação e as métricas são comparadas.
-
-Por fim, repetimos a inferência sem treinar de novo e comparamos as métricas. Esse é o caminho pelo código. Obrigado!
+Por fim, a reprodução refaz a base com as fontes arquivadas. Neste trecho, o programa usa os modelos salvos para repetir a avaliação e comparar as métricas com as originais, sem treinar de novo. Assim fechamos o caminho dos dados até a avaliação. Obrigado!
