@@ -625,6 +625,81 @@ variante remove essencialmente o calendário. O resultado não prova que
 sazonalidade seja irrelevante; indica apenas que essas codificações não
 acrescentaram AP com o orçamento atual.
 
+\subsection{Por que o F1 permaneceu baixo?}
+\label{subsec:f1}
+
+O F1 próximo de 25\% deve ser lido contra referências da própria tarefa,
+e não contra a escala absoluta de 0 a 100. Com prevalência de 1,45\% em
+2025, sinalizar todas as unidades produziria F1 de 2,85\%. Um
+classificador aleatório que emitisse o mesmo número de alertas do Random
+Forest (13.368, ou 2,39\% dos pares) teria precisão igual à prevalência
+e F1 esperado de 1,80\%. O F1 observado é, portanto, cerca de 13,8 vezes
+essa referência, e a precisão de 19,99\% equivale a 13,8 vezes a
+prevalência (Tabela~\ref{tab:f1-referencias}). A ablação sem atributos
+viários confirma esse piso: o F1 de 2,89\% praticamente coincide com o
+do classificador trivial.
+
+\begin{table}[htbp]
+\centering
+\caption{F1 dos modelos completos frente a referências da própria
+tarefa. Valores em porcentagem, médias entre cinco sementes. A razão de
+precisão divide a precisão de 2025 pela prevalência; o F1 aleatório é o
+valor esperado em 2025 para um classificador aleatório com o mesmo
+número de alertas.}
+\label{tab:f1-referencias}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Modelo} & \textbf{F1 val. 2024} & \textbf{F1 2025} &
+\textbf{F1 2026} & \textbf{Precisão/prev.} & \textbf{F1 aleatório} \\
+\midrule
+Random Forest & 25,75 & 24,86 & 24,77 & 13,8 & 1,80 \\
+XGBoost       & 24,80 & 24,73 & 24,84 & 13,4 & 1,89 \\
+MLP           & 24,62 & 24,60 & 24,71 & 12,9 & 1,91 \\
+GraphSAGE     & 22,85 & 22,14 & 22,68 & 12,5 & 1,79 \\
+GATv2         & 18,82 & 18,25 & 19,05 & 10,5 & 1,79 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Dois padrões indicam que o valor não decorre de sobreajuste nem de falha
+do protocolo. Primeiro, o F1 variou menos de 1\pp\ entre a
+validação de 2024, na qual os limiares foram escolhidos, e os testes de
+2025 e 2026, embora os limiares tenham permanecido congelados. Segundo,
+três famílias com vieses indutivos distintos (\textit{bagging} de
+árvores, \textit{boosting} e rede densa) convergiram para a faixa de
+24,6\% a 24,9\%, com desvios entre sementes de no máximo 0,42\pp. Esse
+comportamento é compatível com um limite imposto pela informação
+disponível nas entradas, e não pela escolha do algoritmo, embora essa
+hipótese não tenha sido isolada experimentalmente.
+
+A natureza do alvo ajuda a explicar esse limite. Em 2025, as 9.119
+ocorrências se distribuíram em 8.092 unidades positivas, cerca de 1,13
+por unidade: o positivo típico é um evento único e pontual. Em média,
+cada segmento teve 0,74 semana positiva entre 51. Além disso, as
+entradas são essencialmente estáticas: atributos da via e calendário,
+sem históricos defasados nem variáveis dinâmicas como tráfego, clima ou
+obras. A remoção do calendário não reduziu o F1 das GNNs
+(Tabela~\ref{tab:ablacoes}), o que sugere que os modelos ordenam
+sobretudo \emph{onde} o risco se concentra, com pouca capacidade de
+distinguir \emph{em qual semana} ele se materializa. Como ilustração,
+o Random Forest emitiu em média 262 alertas por semana; mesmo uma
+estimativa perfeita do risco de cada segmento só produziria precisão
+elevada se esses trechos tivessem acidentes registrados na maioria das
+semanas, situação incompatível com a frequência observada. A
+esparsidade e o excesso de zeros são reconhecidos como desafios centrais
+da predição em nível de via \cite{zhuang2024}.
+
+Por esses motivos, elevar o F1 reajustando limiares nos testes
+inflaria artificialmente o resultado e comprometeria a validade da
+avaliação. Optou-se por mantê-los congelados e por adotar a AP como
+métrica principal, mais adequada a classes raras \cite{saito2015}. O F1
+obtido caracteriza, assim, a dificuldade real da tarefa na resolução
+segmento--semana e indica que os modelos são mais adequados à
+priorização de trechos do que à emissão de alarmes semanais
+individuais.
+
 \subsection{Custo computacional}
 
 XGBoost apresentou simultaneamente a maior AP e o menor tempo médio de
@@ -718,6 +793,13 @@ os modelos tabulares. A topologia produziu pequeno ganho de AP no
 GraphSAGE e perda no GATv2, mostrando que passagem de mensagens não é
 automaticamente benéfica. As ablações indicaram que os atributos da via
 foram a principal fonte de sinal preditivo.
+
+O F1 próximo de 25\% não invalida esses resultados. Nos melhores
+modelos, ele é cerca de 13 vezes o esperado para alertas aleatórios em igual número, manteve-se
+estável entre validação e testes com limiares congelados e convergiu
+entre famílias distintas de modelos. O valor reflete a raridade e o
+caráter pontual dos acidentes na resolução segmento--semana, além da
+ausência de informação dinâmica, e não um defeito do protocolo.
 
 A contribuição central é uma comparação brasileira, temporalmente
 separada, auditável e reproduzível, inclusive quando o resultado não
